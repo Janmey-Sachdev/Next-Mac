@@ -2,29 +2,23 @@
 import { Textarea } from '@/components/ui/textarea';
 import type { File } from '@/lib/apps';
 import { useDesktop } from '@/contexts/DesktopContext';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 
 
 export default function WordProcessor({ file }: { file?: File }) {
   const { dispatch } = useDesktop();
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(file?.content || '');
 
   useEffect(() => {
-    // When a file is opened, set the content from the file.
-    // We only want to do this when the file prop itself changes.
+    // When a different file is opened, update the content.
     if (file) {
         // For text files, the content is just the string.
-        // For other file types opened in writer, it might be a data URL.
-        // This basic check helps, but more robust logic may be needed for real-world scenarios.
-         if (file.type.startsWith('text/')) {
+         if (file.type.startsWith('text/') && file.content !== content) {
             setContent(file.content);
-        } else {
-            // Fallback for non-text files opened in writer for some reason
-            setContent('');
         }
     }
-  }, [file]);
+  }, [file, content]);
   
   const debouncedContent = useDebounce(content, 500);
 
