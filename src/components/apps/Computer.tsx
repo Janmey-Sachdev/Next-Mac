@@ -2,7 +2,7 @@
 import { useRef } from 'react';
 import { useDesktop } from '@/contexts/DesktopContext';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, FolderPlus } from 'lucide-react';
 
 export default function Computer() {
   const { dispatch } = useDesktop();
@@ -46,11 +46,15 @@ export default function Computer() {
     fileInputRef.current?.click();
   };
 
+  const handleCreateFolder = () => {
+    dispatch({ type: 'CREATE_FOLDER' });
+  };
+
   return (
     <div className="p-8 text-center">
       <h1 className="text-2xl font-bold mb-4">Computer</h1>
       <p className="text-muted-foreground mb-6">
-        Import files from your local machine to the desktop.
+        Manage files and folders on your desktop.
       </p>
       <input
         type="file"
@@ -60,10 +64,16 @@ export default function Computer() {
         className="hidden"
         accept="image/*, text/*"
       />
-      <Button onClick={handleUploadClick}>
-        <Upload className="mr-2 h-4 w-4" />
-        Upload Files
-      </Button>
+      <div className="flex justify-center gap-4">
+        <Button onClick={handleUploadClick}>
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Files
+        </Button>
+        <Button variant="outline" onClick={handleCreateFolder}>
+          <FolderPlus className="mr-2 h-4 w-4" />
+          Create Folder
+        </Button>
+      </div>
     </div>
   );
 }

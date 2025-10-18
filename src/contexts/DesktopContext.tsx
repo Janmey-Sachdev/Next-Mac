@@ -3,7 +3,7 @@ import type { App, File } from '@/lib/apps';
 import { APPS } from '@/lib/apps';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Dispatch, ReactNode } from 'react';
-import { createContext, useContext, useReducer, useState } from 'react';
+import { createContext, useContext, useReducer, useState, useEffect } from 'react';
 
 export interface WindowInstance {
   id: string;
@@ -31,7 +31,8 @@ type Action =
   | { type: 'TOGGLE_MAXIMIZE'; payload: string }
   | { type: 'UPDATE_WINDOW'; payload: Partial<WindowInstance> & { id: string } }
   | { type: 'TILE_WINDOWS' }
-  | { type: 'ADD_DESKTOP_FILES'; payload: File[] };
+  | { type: 'ADD_DESKTOP_FILES'; payload: File[] }
+  | { type: 'CREATE_FOLDER' };
 
 
 const initialState: DesktopState = {
@@ -152,6 +153,18 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         desktopFiles: [...state.desktopFiles, ...newFiles],
       };
     }
+    case 'CREATE_FOLDER': {
+      const newFolder: File = {
+        id: `folder-${Date.now()}`,
+        name: 'New Folder',
+        type: 'folder',
+        content: '', // Folders don't have content in this model
+      };
+      return {
+        ...state,
+        desktopFiles: [...state.desktopFiles, newFolder],
+      };
+    }
     default:
       return state;
   }
@@ -167,9 +180,41 @@ interface DesktopContextType {
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
 
+// Function to get initial state from localStorage
+const getInitialState = (): DesktopState => {
+  if (typeof window === 'undefined') {
+    return initialState;
+  }
+  try {
+    const item = window.localStorage.getItem('desktopState');
+    if (item) {
+      const savedState = JSON.parse(item);
+      return {
+        ...initialState,
+        desktopFiles: savedState.desktopFiles || [],
+      };
+    }
+  } catch (error) {
+    console.error('Error reading from localStorage', error);
+  }
+  return initialState;
+};
+
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(desktopReducer, initialState);
+  const [state, dispatch] = useReducer(desktopReducer, getInitialState());
   const [wallpaper, setWallpaper] = useState(PlaceHolderImages[0]?.imageUrl || '');
+
+  // Effect to save state to localStorage
+  useEffect(() => {
+    try {
+      const stateToSave = {
+        desktopFiles: state.desktopFiles,
+      };
+      window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
+    } catch (error) {
+      console.error('Error writing to localStorage', error);
+    }
+  }, [state.desktopFiles]);
 
   return (
     <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper }}>
