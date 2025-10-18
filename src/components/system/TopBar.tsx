@@ -1,19 +1,9 @@
 'use client';
 import { useDesktop } from '@/contexts/DesktopContext';
-import { Wifi, Battery, Command } from 'lucide-react';
+import { Wifi, Battery } from 'lucide-react';
 import Clock from './Clock';
+import { AppleLogo } from './AppleLogo';
 
-const AppleLogo = () => (
-    <svg
-      className="h-5 w-5 text-foreground fill-current"
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-    >
-      <path d="M12.01,2.09c-0.67,0-1.34,0.06-2,0.17C7.63,2.65,6.6,4.2,6.6,6.51c0,1.3,0.48,2.49,1.2,3.34c0.7,0.83,1.62,1.34,2.7,1.34c0.31,0,0.61-0.05,0.9-0.14c-0.05,0.09-0.09,0.18-0.12,0.28c-0.89,2.52-3.13,4.14-5.63,4.14c-0.8,0-1.55-0.2-2.2-0.58c-1.53,1.51-2.43,3.63-2.43,5.92C1.4,22.86,3.67,24,5.43,24c1.13,0,2.12-0.4,3.2-1.28c1.02-0.84,1.75-2.2,2.07-3.72c-1.38-0.88-2.22-2.39-2.22-4.14c0-2.61,1.93-4.66,4.52-4.79c0.16,0,0.32-0.01,0.48-0.01c0.6,0,1.18,0.05,1.75,0.14c-0.8,2.37-3.04,4.24-5.54,4.24c-0.64,0-1.25-0.13-1.8-0.38c-1.29,1.53-2.03,3.46-2.03,5.52c0,1.25,0.31,2.4,0.83,3.39c0.77,1.45,2.04,2.53,3.56,2.53c1.7,0,3.13-1.12,4.13-1.12c1,0,2.4,1.12,4.1,1.12c2.4,0,3.9-2.23,3.9-4.91c0-3.23-2.16-5.1-4.4-5.1c-1.1,0-2.12,0.51-2.93,1.21c1.03-1.63,1.6-3.46,1.6-5.41C16.6,3.62,14.63,2.09,12.01,2.09z M12.5,3.9c0.75,0,1.52,0.4,2.04,1.14c-0.5,0.7-1.21,1.11-1.95,1.11c-0.78,0-1.53-0.43-2.05-1.16C11.02,4.29,11.75,3.9,12.5,3.9z" />
-    </svg>
-)
 
 export default function TopBar() {
   const { state, apps } = useDesktop();
@@ -25,7 +15,7 @@ export default function TopBar() {
   return (
     <header className="fixed top-0 left-0 right-0 h-8 bg-background/50 backdrop-blur-md flex items-center justify-between px-4 text-sm font-medium text-foreground z-[2000] shadow-sm">
       <div className="flex items-center gap-4">
-        <AppleLogo />
+        <AppleLogo className="text-foreground fill-current" size={20} />
         <span className="font-semibold">
           {focusedApp ? focusedApp.name : 'Finder'}
         </span>
