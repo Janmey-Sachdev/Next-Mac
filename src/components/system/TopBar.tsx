@@ -13,7 +13,7 @@ export default function TopBar() {
     : null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-8 bg-background/50 backdrop-blur-md flex items-center justify-between px-4 text-sm font-medium text-foreground z-[2000] shadow-sm">
+    <header className="fixed top-0 left-0 right-0 h-8 bg-background/30 backdrop-blur-2xl flex items-center justify-between px-4 text-sm font-medium text-foreground z-[2000] shadow-md">
       <div className="flex items-center gap-4">
         <AppleLogo className="text-foreground fill-current" size={20} />
         <span className="font-semibold">

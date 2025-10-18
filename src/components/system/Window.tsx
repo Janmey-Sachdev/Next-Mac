@@ -102,8 +102,8 @@ export default function Window({ instance }: WindowProps) {
       }}
       onPointerDown={() => dispatch({ type: 'FOCUS', payload: instance.id })}
       className={cn(
-        'absolute bg-card/80 backdrop-blur-2xl rounded-lg shadow-2xl border border-white/10 flex flex-col',
-        isFocused ? 'ring-2 ring-primary/50' : 'ring-1 ring-black/10'
+        'absolute bg-card/60 backdrop-blur-2xl rounded-lg shadow-2xl border border-white/20 flex flex-col',
+        isFocused ? 'ring-1 ring-white/30' : 'ring-1 ring-black/20'
       )}
       style={{
         width: instance.size.width,
@@ -121,7 +121,7 @@ export default function Window({ instance }: WindowProps) {
     >
       <div
         onPointerDown={handlePointerDown}
-        className="h-9 px-3 flex items-center justify-between flex-shrink-0 cursor-move border-b"
+        className="h-9 px-3 flex items-center justify-between flex-shrink-0 cursor-move border-b border-white/10"
       >
         <div className="flex items-center gap-2 group">
           <TrafficLight color="red" onClick={() => dispatch({ type: 'CLOSE', payload: instance.id })}>
@@ -141,7 +141,7 @@ export default function Window({ instance }: WindowProps) {
             </button>
         </div>
       </div>
-      <div className="flex-grow overflow-auto">
+      <div className="flex-grow overflow-auto bg-white/10">
         <App />
       </div>
     </motion.div>

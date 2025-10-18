@@ -19,7 +19,7 @@ export default function Dock() {
     >
       <div
         ref={dockRef}
-        className="flex items-end h-20 justify-center gap-2 p-2 bg-background/20 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg"
+        className="flex items-end h-20 justify-center gap-2 p-2 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-lg"
       >
         {apps.map((app) => (
           <AppIcon
