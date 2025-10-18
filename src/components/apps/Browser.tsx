@@ -28,11 +28,15 @@ export default function Browser() {
   };
   
   const goBack = () => {
-    iframeRef.current?.contentWindow?.history.back();
+    // Due to cross-origin security policies, we cannot control the history
+    // of the iframe if it's on a different domain.
+    console.warn("Back functionality is disabled for cross-origin sites.");
   }
   
   const goForward = () => {
-    iframeRef.current?.contentWindow?.history.forward();
+    // Due to cross-origin security policies, we cannot control the history
+    // of the iframe if it's on a different domain.
+    console.warn("Forward functionality is disabled for cross-origin sites.");
   }
 
   const goHome = () => {
@@ -43,8 +47,8 @@ export default function Browser() {
   return (
     <div className="h-full flex flex-col bg-background">
       <div className="p-2 border-b flex gap-2 items-center">
-        <Button variant="ghost" size="icon" onClick={goBack}><ArrowLeft /></Button>
-        <Button variant="ghost" size="icon" onClick={goForward}><ArrowRight /></Button>
+        <Button variant="ghost" size="icon" onClick={goBack} disabled><ArrowLeft /></Button>
+        <Button variant="ghost" size="icon" onClick={goForward} disabled><ArrowRight /></Button>
         <Button variant="ghost" size="icon" onClick={refresh}><RefreshCw /></Button>
         <Button variant="ghost" size="icon" onClick={goHome}><Home /></Button>
         <Input
