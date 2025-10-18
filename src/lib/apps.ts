@@ -1,8 +1,9 @@
-import { Folder, Globe, Settings, Terminal } from 'lucide-react';
+import { Folder, Globe, Settings, Terminal, ActivitySquare } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
 import Finder from '@/components/apps/Finder';
+import TaskManager from '@/components/apps/TaskManager';
 
 export interface App {
   id: string;
@@ -34,4 +35,11 @@ export const APPS: App[] = [
     component: SettingsApp,
     defaultSize: [720, 540],
   },
+  {
+    id: 'task-manager',
+    name: 'Task Manager',
+    icon: ActivitySquare,
+    component: TaskManager,
+    defaultSize: [400, 500],
+  }
 ];
