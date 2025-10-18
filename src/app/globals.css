@@ -51,9 +51,27 @@
 @layer base {
   * {
     @apply border-border;
+    --cursor-pointer: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="font-size: 24px;"><text y="18">👈</text></svg>'), auto;
+    --cursor-text: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="font-size: 24px;"><text x="8" y="24">I</text></svg>'), auto;
   }
+
+  html {
+    --cursor-default: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="font-size: 24px;"><text y="18">👆</text></svg>'), auto;
+    cursor: var(--cursor-default);
+  }
+
   body {
     @apply bg-background text-foreground;
     overflow: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg width='13' height='20' viewBox='0 0 13 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0L12.1213 12.1213L10.384 13.8586L6.58579 10.0604L2.82843 13.8284L0 11V0Z' fill='white'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M1.41421 1.41421L7.44338 7.44338L6.23253 8.65423L1.41421 3.83592V1.41421Z' fill='black'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.41421 8.41421L10.9396 10.9396L9.52538 12.3538L7.23253 10.0609L4.24264 13.0508L2.82843 11.6365L8.41421 6V8.41421Z' fill='black'/%3E%3C/svg%3E") 0 0, auto;
+  }
+
+  button, a, [role="button"], [onclick] {
+    cursor: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_105_2)'%3E%3Cpath d='M9.53629 17.5C10.0241 17.5 10.3705 17.1536 10.3705 16.6657C10.3705 16.1778 10.0241 15.8313 9.53629 15.8313C9.04843 15.8313 8.70195 16.1778 8.70195 16.6657C8.70195 17.1536 9.04843 17.5 9.53629 17.5Z' fill='black'/%3E%3Cpath d='M9.53629 1.66872C9.04843 1.66872 8.70195 1.32224 8.70195 0.83438C8.70195 0.346522 9.04843 0 9.53629 0C10.0241 0 10.3705 0.346522 10.3705 0.83438C10.3705 1.32224 10.0241 1.66872 9.53629 1.66872Z' fill='black'/%3E%Cpath d='M16.6657 7.86722H15.8313V9.53629H17.5V8.70195C17.5 8.21409 17.1536 7.86761 16.6657 7.86761V7.86722Z' transform='rotate(-90 16.6657 7.86722)' fill='black'/%3E%Cpath d='M1.66872 9.53629H0.83438V7.86722H2.5V8.70195C2.5 9.18981 2.15352 9.53629 1.66872 9.53629V9.53629Z' transform='rotate(90 1.66872 9.53629)' fill='black'/%3E%Cpath d='M14.5989 15.0161C14.5989 15.2248 14.512 15.4248 14.3592 15.5776C14.2064 15.7304 14.0064 15.8173 13.7977 15.8173L5.27481 15.8173C5.06612 15.8173 4.86612 15.7304 4.71333 15.5776C4.56053 15.4248 4.47363 15.2248 4.47363 15.0161V4.4566C4.47363 4.24792 4.56053 4.04792 4.71333 3.89512C4.86612 3.74233 5.06612 3.65543 5.27481 3.65543H13.7977C14.0064 3.65543 14.2064 3.74233 14.3592 3.89512C14.512 4.04792 14.5989 4.24792 14.5989 4.4566V15.0161Z' fill='white' stroke='black' stroke-width='1.66875'/%3E%3Cpath d='M12.9284 5.72754V13.34H6.14307V5.72754H12.9284Z' fill='black'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_105_2'%3E%3Crect width='17.5' height='17.5' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E") 8 8, pointer;
+  }
+
+  input[type=text], textarea {
+    cursor: text;
+    cursor: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 4L12 20' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M9 4H15' stroke='black' stroke-width='1.5'/%3E%3Cpath d='M9 20H15' stroke='black' stroke-width='1.5'/%3E%3C/svg%3E") 12 12, text;
   }
 }
