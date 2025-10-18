@@ -95,10 +95,13 @@ export default function Window({ instance }: WindowProps) {
       dragControls={dragControls}
       dragMomentum={false}
       onDragEnd={(_event, info) => {
-        dispatch({
-          type: 'UPDATE_WINDOW',
-          payload: { id: instance.id, position: { x: info.point.x, y: info.point.y } },
-        });
+        if(windowRef.current) {
+            const {x, y} = windowRef.current.getBoundingClientRect();
+            dispatch({
+              type: 'UPDATE_WINDOW',
+              payload: { id: instance.id, position: { x, y } },
+            });
+        }
       }}
       onPointerDown={() => dispatch({ type: 'FOCUS', payload: instance.id })}
       className={cn(
