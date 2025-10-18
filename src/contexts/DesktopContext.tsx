@@ -32,6 +32,7 @@ type Action =
   | { type: 'UPDATE_WINDOW'; payload: Partial<WindowInstance> & { id: string } }
   | { type: 'TILE_WINDOWS' }
   | { type: 'ADD_DESKTOP_FILES'; payload: File[] }
+  | { type: 'UPDATE_DESKTOP_FILE'; payload: File }
   | { type: 'CREATE_FOLDER' };
 
 
@@ -153,6 +154,14 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         desktopFiles: [...state.desktopFiles, ...newFiles],
       };
     }
+    case 'UPDATE_DESKTOP_FILE': {
+        return {
+            ...state,
+            desktopFiles: state.desktopFiles.map(df => 
+                df.id === action.payload.id ? action.payload : df
+            ),
+        };
+    }
     case 'CREATE_FOLDER': {
       const newFolder: File = {
         id: `folder-${Date.now()}`,
@@ -189,9 +198,15 @@ const getInitialState = (): DesktopState => {
     const item = window.localStorage.getItem('desktopState');
     if (item) {
       const savedState = JSON.parse(item);
+      // Data migration for files that were saved as just strings.
+      const migratedFiles = savedState.desktopFiles.map((file: any) => {
+        if (typeof file === 'string') return null; // Old data format, discard
+        return file;
+      }).filter(Boolean);
+
       return {
         ...initialState,
-        desktopFiles: savedState.desktopFiles || [],
+        desktopFiles: migratedFiles || [],
       };
     }
   } catch (error) {
