@@ -1,9 +1,11 @@
-import { Folder, Globe, Settings, Terminal, ActivitySquare } from 'lucide-react';
+import { Folder, Globe, Settings, Terminal, ActivitySquare, FileText, Sheet } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
 import Finder from '@/components/apps/Finder';
 import TaskManager from '@/components/apps/TaskManager';
+import WordProcessor from '@/components/apps/WordProcessor';
+import Spreadsheet from '@/components/apps/Spreadsheet';
 
 export interface App {
   id: string;
@@ -41,5 +43,19 @@ export const APPS: App[] = [
     icon: ActivitySquare,
     component: TaskManager,
     defaultSize: [400, 500],
+  },
+  {
+    id: 'writer',
+    name: 'Writer',
+    icon: FileText,
+    component: WordProcessor,
+    defaultSize: [800, 600],
+  },
+  {
+    id: 'sheets',
+    name: 'Sheets',
+    icon: Sheet,
+    component: Spreadsheet,
+    defaultSize: [960, 720],
   }
 ];
