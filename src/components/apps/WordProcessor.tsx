@@ -12,13 +12,15 @@ export default function WordProcessor({ file }: { file?: File }) {
 
   useEffect(() => {
     // When a different file is opened, update the content.
-    if (file) {
+    if (file && file.content !== content) {
         // For text files, the content is just the string.
-         if (file.type.startsWith('text/') && file.content !== content) {
+         if (file.type.startsWith('text/')) {
             setContent(file.content);
         }
     }
-  }, [file, content]);
+    // Only run this effect when the file prop changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file]);
   
   const debouncedContent = useDebounce(content, 500);
 
