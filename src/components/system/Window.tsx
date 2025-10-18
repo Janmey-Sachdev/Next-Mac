@@ -42,7 +42,8 @@ const TrafficLight = ({
 
 export default function Window({ instance }: WindowProps) {
   const { dispatch, state } = useDesktop();
-  const App = APPS.find((app) => app.id === instance.appId)?.component;
+  const appInfo = APPS.find((app) => app.id === instance.appId);
+  const App = appInfo?.component;
   const isFocused = state.focusedWindow === instance.id;
 
   const dragControls = useDragControls();
@@ -95,7 +96,7 @@ export default function Window({ instance }: WindowProps) {
       dragControls={dragControls}
       dragMomentum={false}
       onDragEnd={(_event, info) => {
-        if(windowRef.current) {
+        if(windowRef.current && instance.state !== 'maximized') {
             const {x, y} = windowRef.current.getBoundingClientRect();
             dispatch({
               type: 'UPDATE_WINDOW',
@@ -145,7 +146,7 @@ export default function Window({ instance }: WindowProps) {
         </div>
       </div>
       <div className="flex-grow overflow-auto bg-white/10">
-        <App />
+        <App file={instance.file} />
       </div>
     </motion.div>
   );

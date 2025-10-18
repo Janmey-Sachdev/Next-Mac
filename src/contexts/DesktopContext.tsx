@@ -1,5 +1,5 @@
 'use client';
-import type { App } from '@/lib/apps';
+import type { App, File } from '@/lib/apps';
 import { APPS } from '@/lib/apps';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Dispatch, ReactNode } from 'react';
@@ -13,28 +13,32 @@ export interface WindowInstance {
   size: { width: number; height: number };
   zIndex: number;
   state: 'minimized' | 'maximized' | 'normal';
+  file?: File;
 }
 
 interface DesktopState {
   windows: WindowInstance[];
   focusedWindow: string | null;
   lastZIndex: number;
+  desktopFiles: File[];
 }
 
 type Action =
-  | { type: 'OPEN'; payload: { appId: string; position?: {x: number, y: number}, size?: {width: number, height: number} } }
+  | { type: 'OPEN'; payload: { appId: string; position?: {x: number, y: number}, size?: {width: number, height: number}, file?: File } }
   | { type: 'CLOSE'; payload: string }
   | { type: 'FOCUS'; payload: string }
   | { type: 'MINIMIZE'; payload: string }
   | { type: 'TOGGLE_MAXIMIZE'; payload: string }
   | { type: 'UPDATE_WINDOW'; payload: Partial<WindowInstance> & { id: string } }
-  | { type: 'TILE_WINDOWS' };
+  | { type: 'TILE_WINDOWS' }
+  | { type: 'ADD_DESKTOP_FILES'; payload: File[] };
 
 
 const initialState: DesktopState = {
   windows: [],
   focusedWindow: null,
   lastZIndex: 100,
+  desktopFiles: [],
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -46,11 +50,12 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
       const newWindow: WindowInstance = {
         id: `${app.id}-${Date.now()}`,
         appId: app.id,
-        title: app.name,
+        title: action.payload.file ? `${action.payload.file.name} - ${app.name}` : app.name,
         position: action.payload.position || { x: Math.random() * 200 + 50, y: Math.random() * 200 + 50 },
         size: action.payload.size || { width: app.defaultSize?.[0] || 800, height: app.defaultSize?.[1] || 600 },
         zIndex: state.lastZIndex + 1,
         state: 'normal',
+        file: action.payload.file,
       };
 
       return {
@@ -137,6 +142,15 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
                 }
             })
         }
+    }
+     case 'ADD_DESKTOP_FILES': {
+      const newFiles = action.payload.filter(
+        (file) => !state.desktopFiles.some((df) => df.id === file.id)
+      );
+      return {
+        ...state,
+        desktopFiles: [...state.desktopFiles, ...newFiles],
+      };
     }
     default:
       return state;

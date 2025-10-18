@@ -1,4 +1,4 @@
-import { Folder, Globe, Settings, Terminal, ActivitySquare, FileText, Sheet } from 'lucide-react';
+import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -6,12 +6,20 @@ import Finder from '@/components/apps/Finder';
 import TaskManager from '@/components/apps/TaskManager';
 import WordProcessor from '@/components/apps/WordProcessor';
 import Spreadsheet from '@/components/apps/Spreadsheet';
+import Computer from '@/components/apps/Computer';
+
+export interface File {
+  id: string;
+  name: string;
+  type: string;
+  content: string;
+}
 
 export interface App {
   id: string;
   name: string;
   icon: ComponentType<{ className?: string }>;
-  component: ComponentType;
+  component: ComponentType<{ file?: File }>;
   defaultSize?: [number, number];
 }
 
@@ -57,5 +65,12 @@ export const APPS: App[] = [
     icon: Sheet,
     component: Spreadsheet,
     defaultSize: [960, 720],
+  },
+  {
+    id: 'computer',
+    name: 'Computer',
+    icon: HardDrive,
+    component: Computer,
+    defaultSize: [640, 480],
   }
 ];
