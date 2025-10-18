@@ -29,21 +29,6 @@ export async function getDynamicWallpaper(input: DynamicWallpaperInput): Promise
   return dynamicWallpaperFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'dynamicWallpaperPrompt',
-  input: {schema: DynamicWallpaperInputSchema},
-  output: {schema: DynamicWallpaperOutputSchema},
-  prompt: `You are an expert in generating amazing desktop wallpapers.
-
-  Based on the user's preferences for themes or styles, generate a suitable wallpaper.
-
-  Theme/Style: {{{theme}}}
-
-  The wallpaperDataUri should be a data URI that includes a MIME type and uses Base64 encoding.
-  Return only the wallpaperDataUri in the specified format.  Do not return any other text.
-  `,
-});
-
 const dynamicWallpaperFlow = ai.defineFlow(
   {
     name: 'dynamicWallpaperFlow',
@@ -51,17 +36,16 @@ const dynamicWallpaperFlow = ai.defineFlow(
     outputSchema: DynamicWallpaperOutputSchema,
   },
   async input => {
-    const {media} = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
-      prompt: `Generate a desktop wallpaper with the following theme: ${input.theme}`,
-    });
-
-    if (!media || !media.url) {
-      throw new Error('Failed to generate wallpaper.');
+    const response = await fetch(`https://source.unsplash.com/1920x1080/?${encodeURIComponent(input.theme)}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch wallpaper from Unsplash.');
     }
-
+    const imageBuffer = await response.arrayBuffer();
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const base64Image = Buffer.from(imageBuffer).toString('base64');
+    
     return {
-      wallpaperDataUri: media.url,
+      wallpaperDataUri: `data:${contentType};base64,${base64Image}`,
     };
   }
 );
