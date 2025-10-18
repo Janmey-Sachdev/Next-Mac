@@ -36,9 +36,23 @@ const dynamicWallpaperFlow = ai.defineFlow(
     outputSchema: DynamicWallpaperOutputSchema,
   },
   async input => {
-    const response = await fetch(`https://source.unsplash.com/1920x1080/?${encodeURIComponent(input.theme)}`);
+    // A simple hash function to generate a seed from the theme string
+    const getSeed = (str: string) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return Math.abs(hash);
+    };
+    
+    const seed = getSeed(input.theme);
+    const imageUrl = `https://picsum.photos/seed/${seed}/1920/1080`;
+
+    const response = await fetch(imageUrl);
     if (!response.ok) {
-      throw new Error('Failed to fetch wallpaper from Unsplash.');
+      throw new Error(`Failed to fetch wallpaper. Status: ${response.status}`);
     }
     const imageBuffer = await response.arrayBuffer();
     const contentType = response.headers.get('content-type') || 'image/jpeg';
