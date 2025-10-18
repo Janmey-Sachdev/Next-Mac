@@ -34,7 +34,7 @@ export default function WordProcessor({ file }: { file?: File }) {
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedContent, file, dispatch]);
+  }, [debouncedContent]); // Removed file and dispatch from dependencies
 
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
