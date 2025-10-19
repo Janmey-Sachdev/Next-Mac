@@ -1,7 +1,7 @@
 'use client';
 import { useDesktop } from '@/contexts/DesktopContext';
 import { Button } from '@/components/ui/button';
-import { FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon, Trash2, ShieldAlert, RotateCcw } from 'lucide-react';
+import { FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon, Trash2, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import type { File } from '@/lib/apps';
 import { cn } from '@/lib/utils';
@@ -27,8 +27,9 @@ export default function Trash() {
     setSelectedFileId(null);
   };
   
-  const handleEmptyTrash = () => {
-    dispatch({ type: 'EMPTY_TRASH' });
+  const handleDeleteFile = () => {
+    if (!selectedFileId) return;
+    dispatch({ type: 'PERMANENTLY_DELETE_FILE', payload: selectedFileId });
     setSelectedFileId(null);
   }
 
@@ -56,21 +57,21 @@ export default function Trash() {
             </Button>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={state.trashedFiles.length === 0}>
+                    <Button variant="destructive" size="sm" disabled={!selectedFileId}>
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Empty Trash
+                        Permanently Delete
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action will permanently delete all items in the Trash. This cannot be undone.
+                        This action will permanently delete this file. This cannot be undone.
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleEmptyTrash}>Empty Trash</AlertDialogAction>
+                    <AlertDialogAction onClick={handleDeleteFile}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

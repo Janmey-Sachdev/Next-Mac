@@ -40,7 +40,7 @@ type Action =
   | { type: 'CREATE_FOLDER' }
   | { type: 'TRASH_FILE'; payload: string }
   | { type: 'RESTORE_FILE'; payload: string }
-  | { type: 'EMPTY_TRASH' }
+  | { type: 'PERMANENTLY_DELETE_FILE'; payload: string }
   | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' };
 
@@ -203,10 +203,10 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         desktopFiles: [...state.desktopFiles, fileToRestore],
       };
     }
-    case 'EMPTY_TRASH': {
+    case 'PERMANENTLY_DELETE_FILE': {
       return {
         ...state,
-        trashedFiles: [],
+        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
       };
     }
      case 'CHANGE_PASSWORD': {
@@ -280,7 +280,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         case 'TRASH_FILE':
             playSound('trash');
             break;
-        case 'EMPTY_TRASH':
+        case 'PERMANENTLY_DELETE_FILE':
             playSound('trash');
             break;
         // Close, minimize etc handled in Window component to have access to `playSound`
