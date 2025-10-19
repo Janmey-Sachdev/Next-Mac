@@ -1,4 +1,4 @@
-import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon } from 'lucide-react';
+import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -7,9 +7,12 @@ import TaskManager from '@/components/apps/TaskManager';
 import WordProcessor from '@/components/apps/WordProcessor';
 import Spreadsheet from '@/components/apps/Spreadsheet';
 import Computer from '@/components/apps/Computer';
-import ImageViewer from '@/components/apps/ImageViewer';
+import Photos from '@/components/apps/ImageViewer';
 import ImageEditor from '@/components/apps/ImageEditor';
 import Terminal from '@/components/apps/Terminal';
+import CameraApp from '@/components/apps/Camera';
+import VideoPlayer from '@/components/apps/VideoPlayer';
+import MusicPlayer from '@/components/apps/MusicPlayer';
 
 
 export interface File {
@@ -85,10 +88,10 @@ export const APPS: App[] = [
     defaultSize: [640, 480],
   },
   {
-    id: 'gallery',
-    name: 'Gallery',
+    id: 'photos',
+    name: 'Photos',
     icon: Image,
-    component: ImageViewer,
+    component: Photos,
     defaultSize: [800, 600],
   },
   {
@@ -98,4 +101,25 @@ export const APPS: App[] = [
     component: ImageEditor,
     defaultSize: [1024, 768],
   },
+  {
+    id: 'camera',
+    name: 'Camera',
+    icon: Camera,
+    component: CameraApp,
+    defaultSize: [640, 480]
+  },
+  {
+    id: 'video',
+    name: 'Video Player',
+    icon: Video,
+    component: VideoPlayer,
+    defaultSize: [800, 600]
+  },
+  {
+    id: 'music',
+    name: 'Music Player',
+    icon: Music,
+    component: MusicPlayer,
+    defaultSize: [480, 600]
+  }
 ];

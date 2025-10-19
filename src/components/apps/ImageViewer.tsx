@@ -2,7 +2,7 @@
 import type { File } from '@/lib/apps';
 import Image from 'next/image';
 
-export default function ImageViewer({ file }: { file?: File }) {
+export default function Photos({ file }: { file?: File }) {
   if (!file || !file.content) {
     return (
       <div className="h-full flex items-center justify-center bg-background text-muted-foreground">

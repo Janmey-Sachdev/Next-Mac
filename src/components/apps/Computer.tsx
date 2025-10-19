@@ -24,9 +24,11 @@ export default function Computer() {
     const desktopFiles = await Promise.all(
       Array.from(files).map(async (file) => {
         let content: string;
-        if (file.type.startsWith('image/')) {
-          content = await readFileAsDataURL(file);
+        // For media files, we want to get a URL to them.
+        if (file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+          content = URL.createObjectURL(file);
         } else {
+          // For text files, read the content.
           content = await file.text();
         }
         
@@ -62,7 +64,7 @@ export default function Computer() {
         onChange={handleFileSelect}
         multiple
         className="hidden"
-        accept="image/*, text/*"
+        accept="image/*, text/*, video/*, audio/*"
       />
       <div className="flex justify-center gap-4">
         <Button onClick={handleUploadClick}>

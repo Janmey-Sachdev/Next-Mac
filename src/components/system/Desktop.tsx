@@ -7,7 +7,7 @@ import Window from './Window';
 import { useCallback, useEffect, useState } from 'react';
 import AppMenu from './AppMenu';
 import type { File } from '@/lib/apps';
-import { FileText, Image as ImageIcon, Folder } from 'lucide-react';
+import { FileText, Image as ImageIcon, Folder, Video, Music } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +46,6 @@ function DesktopInner({ onShutdown }: DesktopProps) {
   
   const handleOpenFile = (file: File) => {
     if (file.type === 'folder') {
-        // Maybe open finder to this folder path in the future?
-        // For now, let's open the Finder app as a default action.
         dispatch({ type: 'OPEN', payload: { appId: 'finder' } });
         return;
     }
@@ -56,9 +54,12 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     if (file.type.startsWith('text/')) {
       appId = 'writer';
     } else if (file.type.startsWith('image/')) {
-      appId = 'gallery';
+      appId = 'photos';
+    } else if (file.type.startsWith('video/')) {
+      appId = 'video';
+    } else if (file.type.startsWith('audio/')) {
+      appId = 'music';
     }
-    // Could add more associations here, e.g. for spreadsheets
     
     dispatch({ type: 'OPEN', payload: { appId, file } });
   }
@@ -72,6 +73,12 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     }
     if (file.type.startsWith('text/')) {
       return <FileText className="h-12 w-12 text-white" />;
+    }
+     if (file.type.startsWith('video/')) {
+      return <Video className="h-12 w-12 text-white" />;
+    }
+     if (file.type.startsWith('audio/')) {
+      return <Music className="h-12 w-12 text-white" />;
     }
     return <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>;
   }
