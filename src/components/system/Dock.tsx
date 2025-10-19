@@ -11,6 +11,9 @@ export default function Dock() {
 
   const openAppIds = new Set(state.windows.map((w) => w.appId));
 
+  const finderApp = apps.find(app => app.id === 'finder');
+  const otherApps = apps.filter(app => app.id !== 'finder');
+
   return (
     <footer
       className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[1900]"
@@ -21,7 +24,20 @@ export default function Dock() {
         ref={dockRef}
         className="flex items-end h-20 justify-center gap-2 p-2 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-lg"
       >
-        {apps.map((app) => (
+        {finderApp && (
+          <AppIcon
+            key={finderApp.id}
+            app={finderApp}
+            onClick={() => dispatch({ type: 'OPEN', payload: { appId: finderApp.id } })}
+            isOpen={openAppIds.has(finderApp.id)}
+            isDock
+            isHovered={hovered}
+          />
+        )}
+
+        <Separator orientation="vertical" className="h-12 mx-1 bg-white/30" />
+        
+        {otherApps.map((app) => (
           <AppIcon
             key={app.id}
             app={app}
@@ -31,7 +47,6 @@ export default function Dock() {
             isHovered={hovered}
           />
         ))}
-        <Separator orientation="vertical" className="h-12 mx-1 bg-white/30" />
       </div>
     </footer>
   );
