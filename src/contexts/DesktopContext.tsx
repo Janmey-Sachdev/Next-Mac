@@ -38,7 +38,6 @@ type Action =
   | { type: 'UPDATE_DESKTOP_FILE'; payload: File }
   | { type: 'CREATE_FOLDER' }
   | { type: 'TRASH_FILE'; payload: string }
-  | { type: 'TRASH_ALL_FILES' }
   | { type: 'RESTORE_FILE'; payload: string }
   | { type: 'EMPTY_TRASH' }
   | { type: 'SHUTDOWN' };
@@ -193,13 +192,6 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         trashedFiles: [...state.trashedFiles, fileToTrash],
       };
     }
-    case 'TRASH_ALL_FILES': {
-        return {
-            ...state,
-            desktopFiles: [],
-            trashedFiles: [...state.trashedFiles, ...state.desktopFiles],
-        }
-    }
     case 'RESTORE_FILE': {
       const fileToRestore = state.trashedFiles.find(f => f.id === action.payload);
       if (!fileToRestore) return state;
@@ -277,7 +269,6 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
             playSound('tink');
             break;
         case 'TRASH_FILE':
-        case 'TRASH_ALL_FILES':
             playSound('trash');
             break;
         // Close, minimize etc handled in Window component to have access to `playSound`
