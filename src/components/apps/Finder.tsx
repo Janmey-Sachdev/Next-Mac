@@ -1,10 +1,21 @@
 'use client';
 import { useDesktop } from '@/contexts/DesktopContext';
 import { Button } from '@/components/ui/button';
-import { Upload, FolderPlus, FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon, Edit } from 'lucide-react';
+import { Upload, FolderPlus, FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon, Edit, Trash2, ShieldAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { File } from '@/lib/apps';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function Finder() {
   const { state, dispatch } = useDesktop();
@@ -67,16 +78,25 @@ export default function Finder() {
 
   const handleRename = () => {
     if (!selectedFileId) return;
-    const newName = prompt('Enter new name:');
-    if (newName) {
-      const file = state.desktopFiles.find(f => f.id === selectedFileId);
-      if (file) {
-        dispatch({ type: 'UPDATE_DESKTOP_FILE', payload: { ...file, name: newName } });
-      }
+    const file = state.desktopFiles.find(f => f.id === selectedFileId);
+    const newName = prompt('Enter new name:', file?.name);
+    if (newName && file) {
+      dispatch({ type: 'UPDATE_DESKTOP_FILE', payload: { ...file, name: newName } });
     }
     setSelectedFileId(null);
   }
   
+  const handleDelete = () => {
+    if (!selectedFileId) return;
+    dispatch({ type: 'TRASH_FILE', payload: selectedFileId });
+    setSelectedFileId(null);
+  }
+
+  const handleDeleteAll = () => {
+    dispatch({ type: 'TRASH_ALL_FILES' });
+    setSelectedFileId(null);
+  }
+
   const getFileIcon = (file: File) => {
     if (file.type === 'folder') {
         return <FolderIcon className="h-10 w-10 text-primary" />;
@@ -116,6 +136,31 @@ export default function Finder() {
                 <Edit className="mr-2 h-4 w-4" />
                 Rename
             </Button>
+             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={!selectedFileId}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+            </Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={state.desktopFiles.length === 0}>
+                        <ShieldAlert className="mr-2 h-4 w-4" />
+                        Delete All
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action will move all files and folders on the desktop to the Trash.
+                        You can restore them from the Trash later.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAll}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
       </header>
       <div className="flex-grow pt-4">

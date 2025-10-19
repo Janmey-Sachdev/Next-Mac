@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
-type SoundEffect = 'startup' | 'click' | 'tink' | 'windowOpen' | 'windowClose' | 'windowMinimize' | 'windowMaximize' | 'notification';
+type SoundEffect = 'startup' | 'click' | 'tink' | 'windowOpen' | 'windowClose' | 'windowMinimize' | 'windowMaximize' | 'notification' | 'trash';
 
 interface SoundContextType {
   playSound: (sound: SoundEffect) => void;
@@ -49,15 +49,24 @@ const playNote = (frequency: number, duration: number, volume: number, type: Osc
 const sounds: Record<SoundEffect, (volume: number) => void> = {
   startup: (volume) => {
     if (volume === 0) return;
-    const baseVolume = volume * 0.6;
+    const baseVolume = volume * 0.5; // Reduced volume for a softer sound
     const t = 0; // start time
     
-    // F#4, A#4, C#5, F#5
-    setTimeout(() => playNote(370, 0.7, baseVolume, 'sine'), t);
-    setTimeout(() => playNote(466, 0.7, baseVolume * 0.8, 'sine'), t + 50);
+    // Chord notes (approximating Windows 7 startup sound)
+    const notes = [
+      { freq: 220.00, delay: 0, duration: 1.2, type: 'sine' },      // A3
+      { freq: 329.63, delay: 50, duration: 1.1, type: 'sine' },      // E4
+      { freq: 440.00, delay: 100, duration: 1.0, type: 'sine' },     // A4
+      { freq: 523.25, delay: 150, duration: 0.9, type: 'sine' },     // C5
+      
+      // Upper harmony
+      { freq: 659.25, delay: 200, duration: 0.8, type: 'triangle' }, // E5
+      { freq: 880.00, delay: 250, duration: 0.7, type: 'triangle' }, // A5
+    ];
 
-    setTimeout(() => playNote(554, 0.9, baseVolume, 'sine'), t + 250);
-    setTimeout(() => playNote(698, 0.9, baseVolume * 0.8, 'sine'), t + 300);
+    notes.forEach(note => {
+        setTimeout(() => playNote(note.freq, note.duration, baseVolume, note.type), t + note.delay);
+    });
   },
   click: (volume) => playNote(1000, 0.05, volume * 0.5, 'triangle'),
   tink: (volume) => playNote(1200, 0.05, volume * 0.6, 'sine'),
@@ -65,6 +74,7 @@ const sounds: Record<SoundEffect, (volume: number) => void> = {
   windowClose: (volume) => playNote(400, 0.1, volume, 'sine'),
   windowMinimize: (volume) => playNote(300, 0.15, volume, 'sawtooth'),
   windowMaximize: (volume) => playNote(500, 0.15, volume, 'sawtooth'),
+  trash: (volume) => playNote(100, 0.2, volume * 0.7, 'square'),
   notification: (volume) => {
     if (volume === 0) return;
     playNote(900, 0.1, volume, 'sine');

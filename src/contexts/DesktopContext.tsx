@@ -22,6 +22,7 @@ interface DesktopState {
   focusedWindow: string | null;
   lastZIndex: number;
   desktopFiles: File[];
+  trashedFiles: File[];
 }
 
 type Action =
@@ -34,7 +35,11 @@ type Action =
   | { type: 'TILE_WINDOWS' }
   | { type: 'ADD_DESKTOP_FILES'; payload: File[] }
   | { type: 'UPDATE_DESKTOP_FILE'; payload: File }
-  | { type: 'CREATE_FOLDER' };
+  | { type: 'CREATE_FOLDER' }
+  | { type: 'TRASH_FILE'; payload: string }
+  | { type: 'TRASH_ALL_FILES' }
+  | { type: 'RESTORE_FILE'; payload: string }
+  | { type: 'EMPTY_TRASH' };
 
 
 const initialState: DesktopState = {
@@ -42,6 +47,7 @@ const initialState: DesktopState = {
   focusedWindow: null,
   lastZIndex: 100,
   desktopFiles: [],
+  trashedFiles: [],
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -175,6 +181,37 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         desktopFiles: [...state.desktopFiles, newFolder],
       };
     }
+    case 'TRASH_FILE': {
+      const fileToTrash = state.desktopFiles.find(f => f.id === action.payload);
+      if (!fileToTrash) return state;
+      return {
+        ...state,
+        desktopFiles: state.desktopFiles.filter(f => f.id !== action.payload),
+        trashedFiles: [...state.trashedFiles, fileToTrash],
+      };
+    }
+    case 'TRASH_ALL_FILES': {
+        return {
+            ...state,
+            desktopFiles: [],
+            trashedFiles: [...state.trashedFiles, ...state.desktopFiles],
+        }
+    }
+    case 'RESTORE_FILE': {
+      const fileToRestore = state.trashedFiles.find(f => f.id === action.payload);
+      if (!fileToRestore) return state;
+      return {
+        ...state,
+        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
+        desktopFiles: [...state.desktopFiles, fileToRestore],
+      };
+    }
+    case 'EMPTY_TRASH': {
+      return {
+        ...state,
+        trashedFiles: [],
+      };
+    }
     default:
       return state;
   }
@@ -198,14 +235,20 @@ const getInitialDesktopState = (): DesktopState => {
     const item = window.localStorage.getItem('desktopState');
     if (item) {
       const savedState = JSON.parse(item);
-      const migratedFiles = savedState.desktopFiles.map((file: any) => {
+      const migratedFiles = (savedState.desktopFiles || []).map((file: any) => {
         if (typeof file === 'string') return null;
         return file;
+      }).filter(Boolean);
+      
+      const migratedTrashedFiles = (savedState.trashedFiles || []).map((file: any) => {
+          if (typeof file === 'string') return null;
+          return file;
       }).filter(Boolean);
 
       return {
         ...initialState,
-        desktopFiles: migratedFiles || [],
+        desktopFiles: migratedFiles,
+        trashedFiles: migratedTrashedFiles,
       };
     }
   } catch (error) {
@@ -228,6 +271,10 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         case 'CREATE_FOLDER':
             playSound('tink');
             break;
+        case 'TRASH_FILE':
+        case 'TRASH_ALL_FILES':
+            playSound('trash');
+            break;
         // Close, minimize etc handled in Window component to have access to `playSound`
     }
     return dispatch(action);
@@ -237,12 +284,13 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     try {
       const stateToSave = {
         desktopFiles: state.desktopFiles,
+        trashedFiles: state.trashedFiles,
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.desktopFiles]);
+  }, [state.desktopFiles, state.trashedFiles]);
   
   useEffect(() => {
     playSound('startup');

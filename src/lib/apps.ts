@@ -1,4 +1,4 @@
-import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon } from 'lucide-react';
+import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Trash2 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -10,6 +10,7 @@ import Computer from '@/components/apps/Computer';
 import ImageViewer from '@/components/apps/ImageViewer';
 import ImageEditor from '@/components/apps/ImageEditor';
 import Terminal from '@/components/apps/Terminal';
+import Trash from '@/components/apps/Trash';
 
 
 export interface File {
@@ -97,5 +98,12 @@ export const APPS: App[] = [
     icon: PenTool,
     component: ImageEditor,
     defaultSize: [1024, 768],
+  },
+  {
+    id: 'trash',
+    name: 'Trash',
+    icon: Trash2,
+    component: Trash,
+    defaultSize: [640, 480],
   }
 ];
