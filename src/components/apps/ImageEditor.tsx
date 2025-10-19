@@ -59,11 +59,15 @@ export default function ImageEditor({ file: initialFile }: { file?: File }) {
       } else {
         throw new Error('AI did not return an edited image.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      let description = 'Could not edit the image. The model might be unavailable or the content may have been blocked.';
+      if (error.message && error.message.includes('429')) {
+        description = 'Too many requests. You have exceeded your API quota. Please wait a moment and try again.';
+      }
       toast({
         title: 'Editing Failed',
-        description: 'Could not edit the image. The model might be unavailable or the content may have been blocked.',
+        description: description,
         variant: 'destructive',
       });
     } finally {
@@ -74,7 +78,7 @@ export default function ImageEditor({ file: initialFile }: { file?: File }) {
   const handleSave = () => {
     if (!editedImageUri) return;
 
-    if (currentFile) {
+    if (currentFile && currentFile.id.startsWith('file-')) {
         // Update existing file from desktop
         dispatch({
             type: 'UPDATE_DESKTOP_FILE',
