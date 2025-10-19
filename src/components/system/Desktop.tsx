@@ -81,9 +81,10 @@ function DesktopInner({ onShutdown }: DesktopProps) {
   }
   
   useEffect(() => {
-    const handleShutdownEvent = () => onShutdown();
-    dispatch({ type: 'REGISTER_SHUTDOWN', payload: handleShutdownEvent });
-  }, [dispatch, onShutdown])
+    if (state.shutdownInitiated) {
+      onShutdown();
+    }
+  }, [state.shutdownInitiated, onShutdown]);
 
   return (
     <main

@@ -23,7 +23,7 @@ interface DesktopState {
   lastZIndex: number;
   desktopFiles: File[];
   trashedFiles: File[];
-  shutdown: (() => void) | null;
+  shutdownInitiated: boolean;
 }
 
 type Action =
@@ -41,7 +41,6 @@ type Action =
   | { type: 'TRASH_ALL_FILES' }
   | { type: 'RESTORE_FILE'; payload: string }
   | { type: 'EMPTY_TRASH' }
-  | { type: 'REGISTER_SHUTDOWN'; payload: () => void }
   | { type: 'SHUTDOWN' };
 
 
@@ -51,7 +50,7 @@ const initialState: DesktopState = {
   lastZIndex: 100,
   desktopFiles: [],
   trashedFiles: [],
-  shutdown: null,
+  shutdownInitiated: false,
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -216,11 +215,8 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         trashedFiles: [],
       };
     }
-    case 'REGISTER_SHUTDOWN':
-        return { ...state, shutdown: action.payload };
     case 'SHUTDOWN':
-      state.shutdown?.();
-      return state;
+      return { ...state, shutdownInitiated: true };
     default:
       return state;
   }
