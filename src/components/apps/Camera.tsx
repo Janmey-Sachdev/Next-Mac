@@ -79,7 +79,7 @@ export default function Camera() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-black">
+    <div className="h-full flex flex-row bg-black">
       <div className="relative flex-grow flex items-center justify-center">
         <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
          {hasCameraPermission === false && (
@@ -99,10 +99,10 @@ export default function Camera() {
             </div>
         )}
       </div>
-      <div className="flex-shrink-0 p-4 border-t border-white/20 bg-black/50 flex justify-center">
+      <div className="w-48 flex-shrink-0 p-4 border-l border-white/20 bg-black/50 flex flex-col items-center justify-center">
         <Button
           size="lg"
-          className="h-12"
+          className="h-12 w-full"
           onClick={takePicture}
           disabled={!hasCameraPermission}
         >
