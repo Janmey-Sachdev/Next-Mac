@@ -49,8 +49,13 @@ const playNote = (frequency: number, duration: number, volume: number, type: Osc
 const sounds: Record<SoundEffect, (volume: number) => void> = {
   startup: (volume) => {
     if (volume === 0) return;
-    playNote(440, 0.15, volume, 'triangle');
-    setTimeout(() => playNote(880, 0.2, volume, 'triangle'), 100);
+    const baseVolume = volume * 0.7;
+    // Windows 7 startup sound notes (approximated)
+    // F#4, C#5, G#4, B4
+    setTimeout(() => playNote(370, 0.4, baseVolume, 'sine'), 0);
+    setTimeout(() => playNote(554, 0.4, baseVolume, 'sine'), 150);
+    setTimeout(() => playNote(415, 0.4, baseVolume, 'sine'), 300);
+    setTimeout(() => playNote(494, 0.5, baseVolume, 'sine'), 450);
   },
   click: (volume) => playNote(1000, 0.05, volume * 0.5, 'triangle'),
   tink: (volume) => playNote(1200, 0.05, volume * 0.6, 'sine'),
