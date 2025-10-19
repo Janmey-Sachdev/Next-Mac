@@ -14,6 +14,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 
 interface DesktopProps {
@@ -23,6 +33,8 @@ interface DesktopProps {
 function DesktopInner({ onShutdown }: DesktopProps) {
   const { state, wallpaper, dispatch } = useDesktop();
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
+  const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
+  const [deleteStep, setDeleteStep] = useState(0);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -84,8 +96,25 @@ function DesktopInner({ onShutdown }: DesktopProps) {
   }
 
   const handleDeleteFile = (fileId: string) => {
-    dispatch({ type: 'DELETE_FILE', payload: fileId });
+    setDeleteFileId(fileId);
+    setDeleteStep(1);
   }
+
+  const confirmDelete = () => {
+    if (deleteStep === 1) {
+      setDeleteStep(2);
+    } else {
+      if (deleteFileId) {
+        dispatch({ type: 'DELETE_FILE', payload: deleteFileId });
+      }
+      resetDelete();
+    }
+  };
+
+  const resetDelete = () => {
+    setDeleteFileId(null);
+    setDeleteStep(0);
+  };
   
   useEffect(() => {
     if (state.shutdownInitiated) {
@@ -117,7 +146,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
                             <span className="text-sm text-white font-medium drop-shadow-md break-words">{file.name}</span>
                         </div>
                       </DropdownMenuTrigger>
-                       <DropdownMenuContent>
+                       <DropdownMenuContent onMouseUp={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onSelect={() => handleOpenFile(file)}>Open</DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => handleDeleteFile(file.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -134,6 +163,27 @@ function DesktopInner({ onShutdown }: DesktopProps) {
       <Dock />
 
       <AppMenu isOpen={isAppMenuOpen} onClose={() => setIsAppMenuOpen(false)} />
+      
+      <AlertDialog open={deleteStep > 0} onOpenChange={(open) => !open && resetDelete()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteStep === 1 ? 'Are you absolutely sure?' : 'This is your final warning!'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteStep === 1
+                ? "This action cannot be undone. This will permanently delete the file from the system."
+                : "This action is irreversible. The file will be gone forever. Are you certain you want to proceed?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={resetDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+              {deleteStep === 1 ? 'Yes, Delete' : 'Yes, Permanently Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
