@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
@@ -44,6 +45,11 @@ export default function TopBar() {
                 <AppleLogo className="text-foreground fill-current" size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+                <DropdownMenuItem onClick={openSettings}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>System Settings...</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleShutdown}>
                     <Power className="mr-2 h-4 w-4" />
                     <span>Shut Down...</span>

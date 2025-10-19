@@ -22,7 +22,6 @@ interface DesktopState {
   focusedWindow: string | null;
   lastZIndex: number;
   desktopFiles: File[];
-  trashedFiles: File[];
   password?: string;
   shutdownInitiated: boolean;
 }
@@ -38,9 +37,7 @@ type Action =
   | { type: 'ADD_DESKTOP_FILES'; payload: File[] }
   | { type: 'UPDATE_DESKTOP_FILE'; payload: File }
   | { type: 'CREATE_FOLDER' }
-  | { type: 'TRASH_FILE'; payload: string }
-  | { type: 'RESTORE_FILE'; payload: string }
-  | { type: 'PERMANENTLY_DELETE_FILE'; payload: string }
+  | { type: 'DELETE_FILE'; payload: string }
   | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' };
 
@@ -50,7 +47,6 @@ const initialState: DesktopState = {
   focusedWindow: null,
   lastZIndex: 100,
   desktopFiles: [],
-  trashedFiles: [],
   shutdownInitiated: false,
 };
 
@@ -185,28 +181,10 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         desktopFiles: [...state.desktopFiles, newFolder],
       };
     }
-    case 'TRASH_FILE': {
-      const fileToTrash = state.desktopFiles.find(f => f.id === action.payload);
-      if (!fileToTrash) return state;
+    case 'DELETE_FILE': {
       return {
         ...state,
         desktopFiles: state.desktopFiles.filter(f => f.id !== action.payload),
-        trashedFiles: [...state.trashedFiles, fileToTrash],
-      };
-    }
-    case 'RESTORE_FILE': {
-      const fileToRestore = state.trashedFiles.find(f => f.id === action.payload);
-      if (!fileToRestore) return state;
-      return {
-        ...state,
-        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
-        desktopFiles: [...state.desktopFiles, fileToRestore],
-      };
-    }
-    case 'PERMANENTLY_DELETE_FILE': {
-      return {
-        ...state,
-        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
       };
     }
      case 'CHANGE_PASSWORD': {
@@ -244,17 +222,11 @@ const getInitialDesktopState = (): DesktopState => {
         if (typeof file === 'string') return null;
         return file;
       }).filter(Boolean);
-      
-      const migratedTrashedFiles = (savedState.trashedFiles || []).map((file: any) => {
-          if (typeof file === 'string') return null;
-          return file;
-      }).filter(Boolean);
 
       return {
         ...initialState,
         password: savedState.password || '1234',
         desktopFiles: migratedFiles,
-        trashedFiles: migratedTrashedFiles,
       };
     }
   } catch (error) {
@@ -277,10 +249,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         case 'CREATE_FOLDER':
             playSound('tink');
             break;
-        case 'TRASH_FILE':
-            playSound('trash');
-            break;
-        case 'PERMANENTLY_DELETE_FILE':
+        case 'DELETE_FILE':
             playSound('trash');
             break;
         // Close, minimize etc handled in Window component to have access to `playSound`
@@ -293,13 +262,12 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
       const stateToSave = {
         password: state.password,
         desktopFiles: state.desktopFiles,
-        trashedFiles: state.trashedFiles,
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.password, state.desktopFiles, state.trashedFiles]);
+  }, [state.password, state.desktopFiles]);
   
   useEffect(() => {
     playSound('startup');
