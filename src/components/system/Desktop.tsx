@@ -75,19 +75,21 @@ function DesktopInner() {
 
       <div className="relative w-full h-full">
         {/* Desktop Icons */}
-        <div className="absolute top-12 left-4 grid grid-cols-1 gap-4">
-          {state.desktopFiles.map((file) => (
-             <div
-              key={file.id}
-              className="flex flex-col items-center gap-2 group cursor-pointer w-24 text-center"
-              onDoubleClick={() => handleOpenFile(file)}
-            >
-              <div className="p-4 bg-background/50 rounded-2xl shadow-md group-hover:scale-110 transition-transform flex items-center justify-center">
-                {getFileIcon(file)}
-              </div>
-              <span className="text-sm text-white font-medium drop-shadow-md break-words">{file.name}</span>
+        <div className="absolute top-10 left-4 h-full">
+            <div className="flex flex-col flex-wrap h-[calc(100vh-120px)] gap-x-4">
+                {state.desktopFiles.map((file) => (
+                    <div
+                        key={file.id}
+                        className="flex flex-col items-center gap-2 group cursor-pointer w-24 text-center basis-[110px]"
+                        onDoubleClick={() => handleOpenFile(file)}
+                    >
+                        <div className="p-4 bg-background/50 rounded-2xl shadow-md group-hover:scale-110 transition-transform flex items-center justify-center">
+                        {getFileIcon(file)}
+                        </div>
+                        <span className="text-sm text-white font-medium drop-shadow-md break-words">{file.name}</span>
+                    </div>
+                ))}
             </div>
-          ))}
         </div>
 
         {state.windows.map((win) => (

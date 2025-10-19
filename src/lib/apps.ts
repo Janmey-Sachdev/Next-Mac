@@ -1,4 +1,4 @@
-import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool } from 'lucide-react';
+import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -9,6 +9,7 @@ import Spreadsheet from '@/components/apps/Spreadsheet';
 import Computer from '@/components/apps/Computer';
 import ImageViewer from '@/components/apps/ImageViewer';
 import ImageEditor from '@/components/apps/ImageEditor';
+import Terminal from '@/components/apps/Terminal';
 
 
 export interface File {
@@ -47,6 +48,13 @@ export const APPS: App[] = [
     icon: Settings,
     component: SettingsApp,
     defaultSize: [720, 540],
+  },
+   {
+    id: 'terminal',
+    name: 'Terminal',
+    icon: TerminalIcon,
+    component: Terminal,
+    defaultSize: [640, 400],
   },
   {
     id: 'task-manager',

@@ -1,13 +1,15 @@
 'use client';
 import { useDesktop } from '@/contexts/DesktopContext';
 import { Button } from '@/components/ui/button';
-import { Upload, FolderPlus, FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon } from 'lucide-react';
-import { useRef } from 'react';
+import { Upload, FolderPlus, FileText, ImageIcon as ImageIconLucide, Folder as FolderIcon, Edit } from 'lucide-react';
+import { useRef, useState } from 'react';
 import type { File } from '@/lib/apps';
+import { cn } from '@/lib/utils';
 
 export default function Finder() {
   const { state, dispatch } = useDesktop();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
 
   const readFileAsDataURL = (file: globalThis.File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -62,6 +64,18 @@ export default function Finder() {
     }
     dispatch({ type: 'OPEN', payload: { appId, file } });
   }
+
+  const handleRename = () => {
+    if (!selectedFileId) return;
+    const newName = prompt('Enter new name:');
+    if (newName) {
+      const file = state.desktopFiles.find(f => f.id === selectedFileId);
+      if (file) {
+        dispatch({ type: 'UPDATE_DESKTOP_FILE', payload: { ...file, name: newName } });
+      }
+    }
+    setSelectedFileId(null);
+  }
   
   const getFileIcon = (file: File) => {
     if (file.type === 'folder') {
@@ -98,6 +112,10 @@ export default function Finder() {
                 <FolderPlus className="mr-2 h-4 w-4" />
                 New Folder
             </Button>
+            <Button variant="outline" size="sm" onClick={handleRename} disabled={!selectedFileId}>
+                <Edit className="mr-2 h-4 w-4" />
+                Rename
+            </Button>
         </div>
       </header>
       <div className="flex-grow pt-4">
@@ -108,7 +126,11 @@ export default function Finder() {
             {state.desktopFiles.map((file) => (
                 <div
                 key={file.id}
-                className="flex flex-col items-center gap-2 group cursor-pointer w-24 text-center"
+                className={cn(
+                  "flex flex-col items-center gap-2 group cursor-pointer w-24 text-center p-2 rounded-lg",
+                  selectedFileId === file.id && "bg-accent"
+                )}
+                onClick={() => setSelectedFileId(file.id)}
                 onDoubleClick={() => handleOpenFile(file)}
                 >
                 <div className="flex items-center justify-center">
