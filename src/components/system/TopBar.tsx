@@ -84,6 +84,9 @@ export default function TopBar() {
         <Battery className="h-4 w-4" />
         <Wifi className="h-4 w-4" />
         <Clock />
+        <button onClick={handleShutdown} title="Shut Down">
+          <Power className="h-4 w-4" />
+        </button>
       </div>
     </header>
   );
