@@ -84,7 +84,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
   }
 
   const handleDeleteFile = (fileId: string) => {
-    dispatch({ type: 'TRASH_FILE', payload: fileId });
+    dispatch({ type: 'DELETE_FILE', payload: fileId });
   }
   
   useEffect(() => {
@@ -119,7 +119,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
                       </DropdownMenuTrigger>
                        <DropdownMenuContent>
                           <DropdownMenuItem onSelect={() => handleOpenFile(file)}>Open</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleDeleteFile(file.id)}>Move to Trash</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => handleDeleteFile(file.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ))}

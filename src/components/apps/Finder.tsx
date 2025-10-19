@@ -14,13 +14,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 export default function Finder() {
   const { state, dispatch } = useDesktop();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const readFileAsDataURL = (file: globalThis.File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -86,10 +86,11 @@ export default function Finder() {
     setSelectedFileId(null);
   }
   
-  const handleDelete = () => {
+  const handleDeleteConfirm = () => {
     if (!selectedFileId) return;
-    dispatch({ type: 'TRASH_FILE', payload: selectedFileId });
+    dispatch({ type: 'DELETE_FILE', payload: selectedFileId });
     setSelectedFileId(null);
+    setShowDeleteConfirm(false);
   }
 
   const getFileIcon = (file: File) => {
@@ -107,60 +108,78 @@ export default function Finder() {
 
 
   return (
-    <div className="p-4 h-full flex flex-col">
-       <header className="flex-shrink-0 flex items-center justify-between pb-4 border-b">
-        <h1 className="text-xl font-bold">Desktop</h1>
-        <div className="flex items-center gap-2">
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                multiple
-                className="hidden"
-                accept="image/*, text/*"
-            />
-            <Button variant="outline" size="sm" onClick={handleUploadClick}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import File
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleCreateFolder}>
-                <FolderPlus className="mr-2 h-4 w-4" />
-                New Folder
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleRename} disabled={!selectedFileId}>
-                <Edit className="mr-2 h-4 w-4" />
-                Rename
-            </Button>
-             <Button variant="destructive" size="sm" onClick={handleDelete} disabled={!selectedFileId}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-            </Button>
+    <>
+      <div className="p-4 h-full flex flex-col">
+         <header className="flex-shrink-0 flex items-center justify-between pb-4 border-b">
+          <h1 className="text-xl font-bold">Desktop</h1>
+          <div className="flex items-center gap-2">
+              <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  multiple
+                  className="hidden"
+                  accept="image/*, text/*"
+              />
+              <Button variant="outline" size="sm" onClick={handleUploadClick}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import File
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleCreateFolder}>
+                  <FolderPlus className="mr-2 h-4 w-4" />
+                  New Folder
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleRename} disabled={!selectedFileId}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Rename
+              </Button>
+               <Button variant="destructive" size="sm" onClick={() => setShowDeleteConfirm(true)} disabled={!selectedFileId}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+              </Button>
+          </div>
+        </header>
+        <div className="flex-grow pt-4">
+          {state.desktopFiles.length === 0 ? (
+               <div className="text-center text-muted-foreground">This folder is empty.</div>
+          ) : (
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              {state.desktopFiles.map((file) => (
+                  <div
+                  key={file.id}
+                  className={cn(
+                    "flex flex-col items-center gap-2 group cursor-pointer w-24 text-center p-2 rounded-lg",
+                    selectedFileId === file.id && "bg-accent"
+                  )}
+                  onClick={() => setSelectedFileId(file.id)}
+                  onDoubleClick={() => handleOpenFile(file)}
+                  >
+                  <div className="flex items-center justify-center">
+                      {getFileIcon(file)}
+                  </div>
+                  <span className="text-xs text-foreground font-medium break-words">{file.name}</span>
+                  </div>
+              ))}
+              </div>
+          )}
         </div>
-      </header>
-      <div className="flex-grow pt-4">
-        {state.desktopFiles.length === 0 ? (
-             <div className="text-center text-muted-foreground">This folder is empty.</div>
-        ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4">
-            {state.desktopFiles.map((file) => (
-                <div
-                key={file.id}
-                className={cn(
-                  "flex flex-col items-center gap-2 group cursor-pointer w-24 text-center p-2 rounded-lg",
-                  selectedFileId === file.id && "bg-accent"
-                )}
-                onClick={() => setSelectedFileId(file.id)}
-                onDoubleClick={() => handleOpenFile(file)}
-                >
-                <div className="flex items-center justify-center">
-                    {getFileIcon(file)}
-                </div>
-                <span className="text-xs text-foreground font-medium break-words">{file.name}</span>
-                </div>
-            ))}
-            </div>
-        )}
       </div>
-    </div>
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the file.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
