@@ -57,7 +57,7 @@ export default function ChangePassword() {
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4">
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="old-password"بریال="right">
+        <Label htmlFor="old-password" className="text-right">
           Old Password
         </Label>
         <Input
@@ -70,7 +70,7 @@ export default function ChangePassword() {
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="new-password"بریال="right">
+        <Label htmlFor="new-password" className="text-right">
           New Password
         </Label>
         <Input
@@ -83,7 +83,7 @@ export default function ChangePassword() {
         />
       </div>
        <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="confirm-password"بریال="right">
+        <Label htmlFor="confirm-password" className="text-right">
           Confirm Password
         </Label>
         <Input
