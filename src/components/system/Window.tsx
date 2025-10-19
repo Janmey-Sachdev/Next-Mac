@@ -91,10 +91,10 @@ export default function Window({ instance }: WindowProps) {
   }
 
   const maximizedStyles = {
-    top: '32px',
+    top: '2rem', // 32px for top bar
     left: '0px',
     width: '100vw',
-    height: 'calc(100vh - 32px - 80px)',
+    height: 'calc(100vh - 2rem - 5rem)', // 32px top bar, 80px dock
     transform: 'none'
   };
 
@@ -125,7 +125,8 @@ export default function Window({ instance }: WindowProps) {
       onPointerDown={handleFocus}
       className={cn(
         'absolute bg-card/60 backdrop-blur-2xl rounded-lg shadow-2xl border border-white/20 flex flex-col',
-        isFocused ? 'ring-1 ring-white/30' : 'ring-1 ring-black/20'
+        isFocused ? 'ring-1 ring-white/30' : 'ring-1 ring-black/20',
+        instance.state === 'maximized' ? 'rounded-none' : 'rounded-lg'
       )}
       style={{
         width: instance.size.width,
@@ -143,6 +144,7 @@ export default function Window({ instance }: WindowProps) {
     >
       <div
         onPointerDown={handlePointerDown}
+        onDoubleClick={handleToggleMaximize}
         className="h-9 px-3 flex items-center justify-between flex-shrink-0 cursor-move border-b border-white/10"
       >
         <div className="flex items-center gap-2 group">

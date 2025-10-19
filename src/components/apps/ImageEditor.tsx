@@ -1,28 +1,32 @@
 'use client';
 import type { File } from '@/lib/apps';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { editImage } from '@/ai/flows/edit-image-flow';
 import { useDesktop } from '@/contexts/DesktopContext';
 
-export default function ImageEditor({ file }: { file?: File }) {
+export default function ImageEditor({ file: initialFile }: { file?: File }) {
   const { dispatch } = useDesktop();
+  const [currentFile, setCurrentFile] = useState<File | null>(initialFile || null);
   const [editedImageUri, setEditedImageUri] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Reset edited image when a new file is opened
+    // Reset when a new file is opened from the desktop
+    setCurrentFile(initialFile || null);
     setEditedImageUri(null);
-  }, [file]);
+  }, [initialFile]);
 
   const handleGenerate = async () => {
-    if (!file || !file.content) {
+    const imageToEdit = currentFile?.content;
+    if (!imageToEdit) {
       toast({
         title: 'No Image Loaded',
         description: 'Please open an image file to start editing.',
@@ -42,7 +46,7 @@ export default function ImageEditor({ file }: { file?: File }) {
     setIsLoading(true);
     try {
       const result = await editImage({
-        imageDataUri: file.content,
+        imageDataUri: imageToEdit,
         prompt: prompt,
       });
 
@@ -68,30 +72,75 @@ export default function ImageEditor({ file }: { file?: File }) {
   };
   
   const handleSave = () => {
-    if (file && editedImageUri) {
+    if (!editedImageUri) return;
+
+    if (currentFile) {
+        // Update existing file from desktop
         dispatch({
             type: 'UPDATE_DESKTOP_FILE',
-            payload: { ...file, content: editedImageUri }
+            payload: { ...currentFile, content: editedImageUri }
         });
         toast({
             title: 'Image Saved',
-            description: `${file.name} has been updated.`
+            description: `${currentFile.name} has been updated.`
+        });
+    } else {
+        // Save as a new file to desktop
+        const newFile: File = {
+            id: `file-${Date.now()}-${Math.random()}`,
+            name: `edited-image-${Date.now()}.png`,
+            type: 'image/png', // Assuming PNG output from AI
+            content: editedImageUri,
+        };
+        dispatch({ type: 'ADD_DESKTOP_FILES', payload: [newFile] });
+        setCurrentFile(newFile); // Start tracking this new file
+        toast({
+            title: 'Image Saved',
+            description: `${newFile.name} has been saved to your desktop.`
         });
     }
   }
 
-  const displayImage = editedImageUri || file?.content;
+  const handleLoadImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUri = e.target?.result as string;
+        // Create a temporary file object, it won't be on the desktop until saved
+        setCurrentFile({
+          id: `local-${Date.now()}`,
+          name: file.name,
+          type: file.type,
+          content: dataUri,
+        });
+        setEditedImageUri(null); // Clear previous edits
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const displayImage = editedImageUri || currentFile?.content;
 
   return (
     <div className="h-full w-full flex flex-col bg-background">
       <div className="flex-shrink-0 p-2 border-b flex items-center gap-2">
+        <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="image/*" />
+        <Button onClick={handleLoadImageClick} variant="outline" size="sm" disabled={isLoading}>
+            <Upload className="mr-2 h-4 w-4" />
+            Load Image
+        </Button>
         <Input
           placeholder="e.g., make this black and white, add a cat..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          disabled={isLoading || !file}
+          disabled={isLoading || !currentFile}
         />
-        <Button onClick={handleGenerate} disabled={isLoading || !file}>
+        <Button onClick={handleGenerate} disabled={isLoading || !currentFile}>
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : null}
@@ -107,7 +156,7 @@ export default function ImageEditor({ file }: { file?: File }) {
           <div className="relative w-full h-full">
             <Image
               src={displayImage}
-              alt={file?.name || 'edited image'}
+              alt={currentFile?.name || 'edited image'}
               fill
               style={{ objectFit: 'contain' }}
               key={displayImage} // Force re-render on image change
@@ -116,7 +165,7 @@ export default function ImageEditor({ file }: { file?: File }) {
         </div>
       ) : (
         <div className="flex-grow flex items-center justify-center text-muted-foreground">
-          No image loaded. Open an image file to start editing.
+          No image loaded. Load an image to start editing.
         </div>
       )}
     </div>
