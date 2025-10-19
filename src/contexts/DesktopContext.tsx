@@ -23,6 +23,7 @@ interface DesktopState {
   lastZIndex: number;
   desktopFiles: File[];
   trashedFiles: File[];
+  password?: string;
   shutdownInitiated: boolean;
 }
 
@@ -40,6 +41,7 @@ type Action =
   | { type: 'TRASH_FILE'; payload: string }
   | { type: 'RESTORE_FILE'; payload: string }
   | { type: 'EMPTY_TRASH' }
+  | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' };
 
 
@@ -207,6 +209,12 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         trashedFiles: [],
       };
     }
+     case 'CHANGE_PASSWORD': {
+      return {
+        ...state,
+        password: action.payload,
+      };
+    }
     case 'SHUTDOWN':
       return { ...state, shutdownInitiated: true };
     default:
@@ -244,6 +252,7 @@ const getInitialDesktopState = (): DesktopState => {
 
       return {
         ...initialState,
+        password: savedState.password || '1234',
         desktopFiles: migratedFiles,
         trashedFiles: migratedTrashedFiles,
       };
@@ -251,7 +260,7 @@ const getInitialDesktopState = (): DesktopState => {
   } catch (error) {
     console.error('Error reading desktop state from localStorage', error);
   }
-  return initialState;
+  return { ...initialState, password: '1234' };
 };
 
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
@@ -271,6 +280,9 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         case 'TRASH_FILE':
             playSound('trash');
             break;
+        case 'EMPTY_TRASH':
+            playSound('trash');
+            break;
         // Close, minimize etc handled in Window component to have access to `playSound`
     }
     return dispatch(action);
@@ -279,6 +291,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     try {
       const stateToSave = {
+        password: state.password,
         desktopFiles: state.desktopFiles,
         trashedFiles: state.trashedFiles,
       };
@@ -286,7 +299,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.desktopFiles, state.trashedFiles]);
+  }, [state.password, state.desktopFiles, state.trashedFiles]);
   
   useEffect(() => {
     playSound('startup');
