@@ -3,7 +3,7 @@ import type { App, File } from '@/lib/apps';
 import { APPS } from '@/lib/apps';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Dispatch, ReactNode } from 'react';
-import { createContext, useContext, useReducer, useState, useEffect } from 'react';
+import { createContext, useContext, useReducer, useState, useEffect, useCallback } from 'react';
 
 export interface WindowInstance {
   id: string;
@@ -185,12 +185,17 @@ interface DesktopContextType {
   dispatch: Dispatch<Action>;
   wallpaper: string;
   setWallpaper: (url: string) => void;
+  getStoredPassword: () => string;
+  savePassword: (current: string, newPass: string) => boolean;
 }
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
 
-// Function to get initial state from localStorage
-const getInitialState = (): DesktopState => {
+const PASSWORD_KEY = 'nextmac_password';
+const DEFAULT_PASSWORD = 'admin';
+
+
+const getInitialDesktopState = (): DesktopState => {
   if (typeof window === 'undefined') {
     return initialState;
   }
@@ -198,9 +203,8 @@ const getInitialState = (): DesktopState => {
     const item = window.localStorage.getItem('desktopState');
     if (item) {
       const savedState = JSON.parse(item);
-      // Data migration for files that were saved as just strings.
       const migratedFiles = savedState.desktopFiles.map((file: any) => {
-        if (typeof file === 'string') return null; // Old data format, discard
+        if (typeof file === 'string') return null;
         return file;
       }).filter(Boolean);
 
@@ -210,16 +214,15 @@ const getInitialState = (): DesktopState => {
       };
     }
   } catch (error) {
-    console.error('Error reading from localStorage', error);
+    console.error('Error reading desktop state from localStorage', error);
   }
   return initialState;
 };
 
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(desktopReducer, getInitialState());
+  const [state, dispatch] = useReducer(desktopReducer, getInitialDesktopState());
   const [wallpaper, setWallpaper] = useState(PlaceHolderImages[0]?.imageUrl || '');
 
-  // Effect to save state to localStorage
   useEffect(() => {
     try {
       const stateToSave = {
@@ -227,12 +230,44 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
-      console.error('Error writing to localStorage', error);
+      console.error('Error writing desktop state to localStorage', error);
     }
   }, [state.desktopFiles]);
+  
+  const getStoredPassword = useCallback((): string => {
+    if (typeof window === 'undefined') return DEFAULT_PASSWORD;
+    try {
+      const savedPass = window.localStorage.getItem(PASSWORD_KEY);
+      if (savedPass === null) {
+        // Set default if not exists
+        window.localStorage.setItem(PASSWORD_KEY, DEFAULT_PASSWORD);
+        return DEFAULT_PASSWORD;
+      }
+      return savedPass;
+    } catch (e) {
+      console.error("Could not access password from local storage", e);
+      return DEFAULT_PASSWORD;
+    }
+  }, []);
+  
+  const savePassword = useCallback((current: string, newPass: string): boolean => {
+     if (typeof window === 'undefined') return false;
+     const storedPassword = getStoredPassword();
+     if(current !== storedPassword) {
+         return false;
+     }
+     try {
+        window.localStorage.setItem(PASSWORD_KEY, newPass);
+        return true;
+     } catch (e) {
+        console.error("Could not save password to local storage", e);
+        return false;
+     }
+  }, [getStoredPassword]);
+
 
   return (
-    <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper }}>
+    <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper, getStoredPassword, savePassword }}>
       {children}
     </DesktopContext.Provider>
   );

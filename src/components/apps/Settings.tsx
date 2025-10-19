@@ -1,7 +1,9 @@
 import DynamicWallpaper from '@/components/system/DynamicWallpaper';
+import ChangePassword from '@/components/system/ChangePassword';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Separator } from '@/components/ui/separator';
 
 export default function SettingsApp() {
   const { theme, setTheme } = useTheme();
@@ -21,12 +23,21 @@ export default function SettingsApp() {
             <Label htmlFor="dark-mode">Dark Mode</Label>
           </div>
         </section>
+        <Separator />
         <section>
           <h2 className="text-lg font-semibold mb-2">Dynamic Wallpaper</h2>
           <p className="text-muted-foreground mb-4">
             Use AI to generate a unique wallpaper based on a theme.
           </p>
           <DynamicWallpaper />
+        </section>
+        <Separator />
+        <section>
+          <h2 className="text-lg font-semibold mb-2">Security</h2>
+           <p className="text-muted-foreground mb-4">
+            Change your login password. The system will reboot after saving.
+          </p>
+          <ChangePassword />
         </section>
       </div>
     </div>
