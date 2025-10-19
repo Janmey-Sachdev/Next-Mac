@@ -1,8 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Progress } from '@/components/ui/progress';
-import { AppleLogo } from './AppleLogo';
 import { AnimatePresence, motion } from 'framer-motion';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function BootScreen({ onBooted }: { onBooted: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -19,9 +18,9 @@ export default function BootScreen({ onBooted }: { onBooted: () => void }) {
           }, 500);
           return 100;
         }
-        return prev + Math.random() * 10;
+        return prev + Math.random() * 20;
       });
-    }, 200);
+    }, 400);
 
     return () => clearInterval(timer);
   }, [onBooted]);
@@ -32,11 +31,15 @@ export default function BootScreen({ onBooted }: { onBooted: () => void }) {
         <motion.div
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[9999]"
+          className="fixed inset-0 bg-[#000] flex flex-col items-center justify-center z-[9999]"
         >
-          <AppleLogo className="mb-8" size={100} />
-          <div className="w-48">
-            <Progress value={progress} className="h-1 bg-gray-700" />
+          <div className="flex-grow flex flex-col items-center justify-center">
+            <LoadingSpinner />
+            <p className="text-white/80 mt-8 text-sm">Preparing NextMac</p>
+          </div>
+          <div className="pb-12 text-center">
+            <h1 className="text-white text-3xl font-semibold">NextMac</h1>
+            <p className="text-white/60 text-sm">Powered By Jan Management System</p>
           </div>
         </motion.div>
       )}
