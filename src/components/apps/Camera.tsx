@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera as CameraIcon, Circle, VideoOff } from 'lucide-react';
+import { Camera as CameraIcon, VideoOff } from 'lucide-react';
 import { useDesktop } from '@/contexts/DesktopContext';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -101,12 +101,13 @@ export default function Camera() {
       </div>
       <div className="flex-shrink-0 p-4 border-t border-white/20 bg-black/50 flex justify-center">
         <Button
-          size="icon"
-          className="w-16 h-16 rounded-full"
+          size="lg"
+          className="h-12"
           onClick={takePicture}
           disabled={!hasCameraPermission}
         >
-          <CameraIcon className="w-8 h-8" />
+          <CameraIcon className="w-6 h-6 mr-2" />
+          Take Photo
         </Button>
       </div>
     </div>
