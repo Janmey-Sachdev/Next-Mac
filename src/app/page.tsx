@@ -4,10 +4,11 @@ import Desktop from '@/components/system/Desktop';
 import BootScreen from '@/components/system/BootScreen';
 import LoginScreen from '@/components/system/LoginScreen';
 import { AnimatePresence, motion } from 'framer-motion';
+import { DesktopProvider } from '@/contexts/DesktopContext';
 
 type SystemState = 'booting' | 'login' | 'desktop';
 
-export default function Home() {
+function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
 
   const handleBooted = () => {
@@ -41,4 +42,13 @@ export default function Home() {
       </AnimatePresence>
     </>
   );
+}
+
+
+export default function Home() {
+    return (
+        <DesktopProvider>
+            <App />
+        </DesktopProvider>
+    )
 }

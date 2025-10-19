@@ -1,13 +1,11 @@
 'use client';
 
-import { DesktopProvider, useDesktop } from '@/contexts/DesktopContext';
+import { useDesktop } from '@/contexts/DesktopContext';
 import TopBar from './TopBar';
 import Dock from './Dock';
 import Window from './Window';
 import { useCallback, useEffect, useState } from 'react';
 import AppMenu from './AppMenu';
-import { cn } from '@/lib/utils';
-import AppIcon from './AppIcon';
 import type { File } from '@/lib/apps';
 import { FileText, Image as ImageIcon, Folder } from 'lucide-react';
 
@@ -105,9 +103,5 @@ function DesktopInner() {
 }
 
 export default function Desktop() {
-  return (
-    <DesktopProvider>
-      <DesktopInner />
-    </DesktopProvider>
-  );
+    return <DesktopInner />;
 }
