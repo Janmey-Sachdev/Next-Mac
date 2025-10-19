@@ -2,22 +2,30 @@
 import type { File } from '@/lib/apps';
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, Rewind, FastForward, Volume2, VolumeX, Music4 } from 'lucide-react';
+import { Play, Pause, Rewind, FastForward, Volume2, VolumeX, Music4, Upload } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
-export default function MusicPlayer({ file }: { file?: File }) {
+export default function MusicPlayer({ file: initialFile }: { file?: File }) {
+  const [currentFile, setCurrentFile] = useState<File | null>(initialFile || null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
 
   useEffect(() => {
-    if (file && audioRef.current) {
-      audioRef.current.src = file.content;
+    if (initialFile) {
+        setCurrentFile(initialFile);
+    }
+  }, [initialFile]);
+
+  useEffect(() => {
+    if (currentFile && audioRef.current) {
+      audioRef.current.src = currentFile.content;
       audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Audio autoplay failed:", e));
     }
-  }, [file]);
+  }, [currentFile]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -39,7 +47,7 @@ export default function MusicPlayer({ file }: { file?: File }) {
   }, []);
 
   const togglePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !currentFile) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -49,7 +57,7 @@ export default function MusicPlayer({ file }: { file?: File }) {
   };
 
   const handleSeek = (value: number[]) => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !currentFile) return;
     audioRef.current.currentTime = value[0];
     setCurrentTime(value[0]);
   };
@@ -67,12 +75,37 @@ export default function MusicPlayer({ file }: { file?: File }) {
     return `${minutes}:${seconds}`;
   };
 
-  if (!file) {
+  const handleLoadFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('audio/')) {
+        const fileUrl = URL.createObjectURL(file);
+        setCurrentFile({
+          id: `local-${Date.now()}`,
+          name: file.name,
+          type: file.type,
+          content: fileUrl,
+        });
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setDuration(0);
+    }
+  };
+
+  if (!currentFile) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-muted text-muted-foreground p-8 text-center">
         <Music4 className="w-24 h-24 mb-4" />
         <h2 className="text-2xl font-bold">Music Player</h2>
-        <p>Open a music file from your desktop to start listening.</p>
+        <p className="mb-4">Open a music file from your desktop or load one from your computer.</p>
+        <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="audio/*" />
+        <Button onClick={handleLoadFileClick}>
+            <Upload className="mr-2 h-4 w-4" />
+            Load Music
+        </Button>
       </div>
     );
   }
@@ -84,7 +117,7 @@ export default function MusicPlayer({ file }: { file?: File }) {
         <div className="flex items-center gap-4 mb-4">
             <Music4 className="w-16 h-16 text-primary" />
             <div className="flex-1">
-                <h3 className="font-bold text-lg truncate">{file.name}</h3>
+                <h3 className="font-bold text-lg truncate">{currentFile.name}</h3>
                 <p className="text-sm text-muted-foreground">Now Playing</p>
             </div>
         </div>
@@ -95,6 +128,7 @@ export default function MusicPlayer({ file }: { file?: File }) {
             max={duration || 0}
             step={1}
             onValueChange={handleSeek}
+            disabled={!currentFile}
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>{formatTime(currentTime)}</span>
@@ -103,18 +137,18 @@ export default function MusicPlayer({ file }: { file?: File }) {
         </div>
         
         <div className="flex items-center justify-center gap-4 mb-4">
-          <Button variant="ghost" size="icon" onClick={() => handleSeek([Math.max(0, currentTime - 10)])}>
+          <Button variant="ghost" size="icon" onClick={() => handleSeek([Math.max(0, currentTime - 10)])}  disabled={!currentFile}>
             <Rewind />
           </Button>
-          <Button size="lg" className="w-16 h-16 rounded-full" onClick={togglePlayPause}>
+          <Button size="lg" className="w-16 h-16 rounded-full" onClick={togglePlayPause} disabled={!currentFile}>
             {isPlaying ? <Pause size={24} /> : <Play size={24} />}
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => handleSeek([Math.min(duration, currentTime + 10)])}>
+          <Button variant="ghost" size="icon" onClick={() => handleSeek([Math.min(duration, currentTime + 10)])} disabled={!currentFile}>
             <FastForward />
           </Button>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-4">
             {volume > 0 ? <Volume2 className="h-5 w-5"/> : <VolumeX className="h-5 w-5"/>}
             <Slider
                 value={[volume]}
@@ -122,6 +156,14 @@ export default function MusicPlayer({ file }: { file?: File }) {
                 step={0.01}
                 onValueChange={handleVolumeChange}
             />
+        </div>
+
+        <div className="text-center">
+             <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" accept="audio/*" />
+            <Button onClick={handleLoadFileClick} variant="outline">
+                <Upload className="mr-2 h-4 w-4" />
+                Load Other Music
+            </Button>
         </div>
       </div>
     </div>
