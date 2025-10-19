@@ -1,4 +1,4 @@
-import { Folder, Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music } from 'lucide-react';
+import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -13,6 +13,7 @@ import Terminal from '@/components/apps/Terminal';
 import CameraApp from '@/components/apps/Camera';
 import VideoPlayer from '@/components/apps/VideoPlayer';
 import MusicPlayer from '@/components/apps/MusicPlayer';
+import { AppleLogo } from '@/components/system/AppleLogo';
 
 
 export interface File {
@@ -34,7 +35,7 @@ export const APPS: App[] = [
   {
     id: 'finder',
     name: 'Finder',
-    icon: Folder,
+    icon: AppleLogo,
     component: Finder,
     defaultSize: [640, 480],
   },

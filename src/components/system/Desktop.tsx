@@ -34,7 +34,6 @@ function DesktopInner({ onShutdown }: DesktopProps) {
   const { state, wallpaper, dispatch } = useDesktop();
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
   const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
-  const [deleteStep, setDeleteStep] = useState(0);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -95,25 +94,11 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     return <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>;
   }
 
-  const handleDeleteFile = (fileId: string) => {
-    setDeleteFileId(fileId);
-    setDeleteStep(1);
-  }
-
   const confirmDelete = () => {
-    if (deleteStep === 1) {
-      setDeleteStep(2);
-    } else {
-      if (deleteFileId) {
-        dispatch({ type: 'DELETE_FILE', payload: deleteFileId });
-      }
-      resetDelete();
+    if (deleteFileId) {
+      dispatch({ type: 'DELETE_FILE', payload: deleteFileId });
     }
-  };
-
-  const resetDelete = () => {
     setDeleteFileId(null);
-    setDeleteStep(0);
   };
   
   useEffect(() => {
@@ -148,7 +133,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
                       </DropdownMenuTrigger>
                        <DropdownMenuContent onMouseUp={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onSelect={() => handleOpenFile(file)}>Open</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleDeleteFile(file.id)}>Delete</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => setDeleteFileId(file.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ))}
@@ -164,22 +149,18 @@ function DesktopInner({ onShutdown }: DesktopProps) {
 
       <AppMenu isOpen={isAppMenuOpen} onClose={() => setIsAppMenuOpen(false)} />
       
-      <AlertDialog open={deleteStep > 0} onOpenChange={(open) => !open && resetDelete()}>
+      <AlertDialog open={!!deleteFileId} onOpenChange={(open) => !open && setDeleteFileId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {deleteStep === 1 ? 'Are you absolutely sure?' : 'This is your final warning!'}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteStep === 1
-                ? "This action cannot be undone. This will permanently delete the file from the system."
-                : "This action is irreversible. The file will be gone forever. Are you certain you want to proceed?"}
+              This action cannot be undone. This will permanently delete the file from the system.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={resetDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeleteFileId(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
-              {deleteStep === 1 ? 'Yes, Delete' : 'Yes, Permanently Delete'}
+              Yes, Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

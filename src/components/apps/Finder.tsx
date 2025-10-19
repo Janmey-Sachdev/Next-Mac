@@ -20,7 +20,7 @@ export default function Finder() {
   const { state, dispatch } = useDesktop();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
-  const [deleteStep, setDeleteStep] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const readFileAsDataURL = (file: globalThis.File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -87,20 +87,10 @@ export default function Finder() {
   }
   
   const handleDelete = () => {
-    if (deleteStep === 0) {
-      setDeleteStep(1);
-    } else if (deleteStep === 1) {
-      setDeleteStep(2);
-    } else {
-      if (!selectedFileId) return;
-      dispatch({ type: 'DELETE_FILE', payload: selectedFileId });
-      setSelectedFileId(null);
-      setDeleteStep(0);
-    }
-  };
-
-  const resetDelete = () => {
-    setDeleteStep(0);
+    if (!selectedFileId) return;
+    dispatch({ type: 'DELETE_FILE', payload: selectedFileId });
+    setSelectedFileId(null);
+    setShowDeleteConfirm(false);
   };
 
   const getFileIcon = (file: File) => {
@@ -143,7 +133,7 @@ export default function Finder() {
                   <Edit className="mr-2 h-4 w-4" />
                   Rename
               </Button>
-               <Button variant="destructive" size="sm" onClick={() => setDeleteStep(1)} disabled={!selectedFileId}>
+               <Button variant="destructive" size="sm" onClick={() => setShowDeleteConfirm(true)} disabled={!selectedFileId}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
               </Button>
@@ -174,22 +164,18 @@ export default function Finder() {
           )}
         </div>
       </div>
-      <AlertDialog open={deleteStep > 0} onOpenChange={(open) => !open && resetDelete()}>
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {deleteStep === 1 ? 'Are you absolutely sure?' : 'This is your final warning!'}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteStep === 1
-                ? "This action cannot be undone. This will permanently delete the file from the system."
-                : "This action is irreversible. The file will be gone forever. Are you certain you want to proceed?"}
+              This action cannot be undone. This will permanently delete the file from the system.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={resetDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-              {deleteStep === 1 ? 'Yes, Delete' : 'Yes, Permanently Delete'}
+              Yes, Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
