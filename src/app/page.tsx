@@ -4,8 +4,9 @@ import Desktop from '@/components/system/Desktop';
 import BootScreen from '@/components/system/BootScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DesktopProvider } from '@/contexts/DesktopContext';
+import ShutdownScreen from '@/components/system/ShutdownScreen';
 
-type SystemState = 'booting' | 'desktop';
+type SystemState = 'booting' | 'desktop' | 'shutdown';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
@@ -13,6 +14,14 @@ function App() {
   const handleBooted = () => {
     setSystemState('desktop');
   };
+  
+  const handleShutdown = () => {
+    setSystemState('shutdown');
+  }
+  
+  const handleRestart = () => {
+    window.location.reload();
+  }
 
   return (
     <>
@@ -25,11 +34,16 @@ function App() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Desktop />
+            <Desktop onShutdown={handleShutdown} />
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {systemState === 'shutdown' && <ShutdownScreen onRestart={handleRestart} />}
       </AnimatePresence>
     </>
   );

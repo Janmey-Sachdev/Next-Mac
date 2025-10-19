@@ -116,8 +116,8 @@ tmpfs         16777216         0  16777216   0% /
         setTimeout(() => window.location.reload(), 1000);
         return 'Rebooting...';
     },
-     shutdown: () => {
-        setTimeout(() => window.location.href = 'about:blank', 1000);
+     shutdown: (args, state, dispatch) => {
+        dispatch({ type: 'SHUTDOWN' });
         return 'Shutting down...';
     },
     open: (args, state, dispatch) => {

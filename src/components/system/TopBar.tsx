@@ -33,11 +33,7 @@ export default function TopBar() {
   }
 
   const handleShutdown = () => {
-    document.body.style.transition = 'opacity 0.5s ease-out';
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        window.location.href = 'about:blank';
-    }, 500);
+    dispatch({ type: 'SHUTDOWN' });
   };
 
   return (

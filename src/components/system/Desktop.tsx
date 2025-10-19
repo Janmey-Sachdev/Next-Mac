@@ -16,7 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 
-function DesktopInner() {
+interface DesktopProps {
+    onShutdown: () => void;
+}
+
+function DesktopInner({ onShutdown }: DesktopProps) {
   const { state, wallpaper, dispatch } = useDesktop();
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
 
@@ -75,6 +79,11 @@ function DesktopInner() {
   const handleDeleteFile = (fileId: string) => {
     dispatch({ type: 'TRASH_FILE', payload: fileId });
   }
+  
+  useEffect(() => {
+    const handleShutdownEvent = () => onShutdown();
+    dispatch({ type: 'REGISTER_SHUTDOWN', payload: handleShutdownEvent });
+  }, [dispatch, onShutdown])
 
   return (
     <main
@@ -121,6 +130,6 @@ function DesktopInner() {
   );
 }
 
-export default function Desktop() {
-    return <DesktopInner />;
+export default function Desktop({ onShutdown }: DesktopProps) {
+    return <DesktopInner onShutdown={onShutdown} />;
 }
