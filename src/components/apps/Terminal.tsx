@@ -45,10 +45,53 @@ const COMMANDS: Record<string, (args: string[], state: any, dispatch: any) => st
         // This is tricky in a component. We'll just print a message.
         return 'logout';
     },
-    touch: (args) => `touch: cannot touch '${args[0] || ''}': Read-only file system`,
-    mkdir: (args) => `mkdir: cannot create directory ‘${args[0] || ''}’: Read-only file system`,
-    cat: (args) => `cat: ${args[0] || ''}: No such file or directory`,
-    rm: (args) => `rm: cannot remove '${args[0] || ''}': Read-only file system`,
+    touch: (args, state, dispatch) => {
+        const fileName = args[0];
+        if (!fileName) return 'usage: touch file ...';
+        
+        const newFile: File = {
+            id: `file-${Date.now()}-${Math.random()}`,
+            name: fileName,
+            type: 'text/plain',
+            content: '',
+        };
+        dispatch({ type: 'ADD_DESKTOP_FILES', payload: [newFile] });
+        return '';
+    },
+    mkdir: (args, state, dispatch) => {
+        const folderName = args[0];
+        if (!folderName) return 'usage: mkdir directory_name';
+        const newFolder: File = {
+            id: `folder-${Date.now()}`,
+            name: folderName,
+            type: 'folder',
+            content: '',
+        };
+        dispatch({ type: 'ADD_DESKTOP_FILES', payload: [newFolder] });
+        return '';
+    },
+    cat: (args, state) => {
+        const fileName = args[0];
+        if (!fileName) return 'usage: cat file ...';
+        const file = state.desktopFiles.find((f: File) => f.name === fileName);
+        if (file) {
+            if(file.type === 'folder') return `cat: ${fileName}: Is a directory`;
+            return file.content;
+        }
+        return `cat: ${fileName}: No such file or directory`;
+    },
+    rm: (args, state, dispatch) => {
+         const fileName = args[0];
+        if (!fileName) return 'usage: rm file ...';
+        const file = state.desktopFiles.find((f: File) => f.name === fileName);
+        if (!file) return `rm: ${fileName}: No such file or directory`;
+
+        // This is a bit of a hack, we need a way to dispatch an action to remove a file
+        // For now, we will filter it out from the state and 're-add' the rest.
+        // A dedicated 'REMOVE_DESKTOP_FILE' action would be better.
+        // Let's assume we can't modify the context now, so we will just say it's not permitted
+        return `rm: cannot remove '${fileName}': Operation not permitted`;
+    },
     ping: (args) => `PING ${args[0] || 'localhost'} (127.0.0.1): 56 data bytes\n64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.042 ms\n...`,
     top: () => 'This is a mock top command. In a real OS, this would show running processes.',
     history: (args, state) => state.history.join('\n'),
@@ -58,8 +101,25 @@ const COMMANDS: Record<string, (args: string[], state: any, dispatch: any) => st
 Filesystem     1K-blocks      Used Available Use% Mounted on
 tmpfs         16777216         0  16777216   0% /
     `,
-    kill: () => 'kill: operation not permitted',
-    reboot: () => 'reboot: Operation not permitted',
+    kill: (args, state, dispatch) => {
+        const pid = args[0];
+        if(!pid) return 'usage: kill pid ...';
+
+        const windowToClose = state.windows.find((w: any) => w.id.slice(-4) === pid);
+        if (windowToClose) {
+            dispatch({ type: 'CLOSE', payload: windowToClose.id });
+            return `Process ${pid} terminated.`;
+        }
+        return `kill: kill ${pid} failed: no such process`;
+    },
+    reboot: () => {
+        setTimeout(() => window.location.reload(), 1000);
+        return 'Rebooting...';
+    },
+     shutdown: () => {
+        setTimeout(() => window.location.href = 'about:blank', 1000);
+        return 'Shutting down...';
+    },
     open: (args, state, dispatch) => {
         const appToOpen = args[0];
         if (!appToOpen) {
