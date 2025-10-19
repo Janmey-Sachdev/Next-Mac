@@ -3,8 +3,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useDesktop } from '@/contexts/DesktopContext';
 import type { File } from '@/lib/apps';
 
-const COMMANDS: Record<string, (args: string[], state: any) => string | { type: 'table', data: Record<string, string>[] }> = {
-    help: () => 'Available commands: help, clear, echo, date, whoami, ls, cd, pwd, uname, neofetch, exit, touch, mkdir, cat, rm',
+const COMMANDS: Record<string, (args: string[], state: any, dispatch: any) => string | { type: 'table', data: Record<string, string>[] }> = {
+    help: () => 'Available commands: help, clear, echo, date, whoami, ls, cd, pwd, uname, neofetch, exit, touch, mkdir, cat, rm, open, close, ps, uptime, hostname, ifconfig, who, last, groups, id, env, which, curl, wget, chown, chmod, mv, cp, free, dmesg, lscpu',
     clear: () => '',
     echo: (args) => args.join(' '),
     date: () => new Date().toString(),
@@ -60,11 +60,105 @@ tmpfs         16777216         0  16777216   0% /
     `,
     kill: () => 'kill: operation not permitted',
     reboot: () => 'reboot: Operation not permitted',
+    open: (args, state, dispatch) => {
+        const appToOpen = args[0];
+        if (!appToOpen) {
+            return 'Usage: open <app_name>';
+        }
+        dispatch({ type: 'OPEN', payload: { appId: appToOpen.toLowerCase() } });
+        return `Opening ${appToOpen}...`;
+    },
+    close: (args, state, dispatch) => {
+        const appToClose = args[0];
+        if (!appToClose) {
+            return 'Usage: close <app_name>';
+        }
+        const windowToClose = state.windows.find((w: any) => w.appId.toLowerCase() === appToClose.toLowerCase());
+        if (windowToClose) {
+            dispatch({ type: 'CLOSE', payload: windowToClose.id });
+            return `Closing ${appToClose}...`;
+        }
+        return `App '${appToClose}' is not running.`;
+    },
+    ps: (args, state) => {
+        if (state.windows.length === 0) {
+            return '  PID TTY          TIME CMD\n';
+        }
+        const header = '  PID TTY          TIME CMD\n';
+        const processes = state.windows.map((w: any) => {
+            const pid = w.id.slice(-4);
+            const cmd = w.appId;
+            return `${pid.padStart(5)} ??         00:00.01 ${cmd}`;
+        }).join('\n');
+        return header + processes;
+    },
+    uptime: () => {
+      const uptimeInSeconds = Math.floor(process.uptime());
+      const hours = Math.floor(uptimeInSeconds / 3600);
+      const minutes = Math.floor((uptimeInSeconds % 3600) / 60);
+      const seconds = uptimeInSeconds % 60;
+      return `up ${hours}h ${minutes}m ${seconds}s`;
+    },
+    hostname: () => 'nextmac.local',
+    ifconfig: () => `
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	ether a1:b2:c3:d4:e5:f6 
+	inet 192.168.1.100 netmask 0xffffff00 broadcast 192.168.1.255
+	media: autoselect
+	status: active
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+	inet 127.0.0.1 netmask 0xff000000 
+    `,
+    who: () => 'admin    console  May 28 10:30',
+    last: () => `
+admin    ttys000                   Wed May 29 08:45 - 08:45  (00:00)
+reboot   ~                         Wed May 29 00:00
+    `,
+    groups: () => 'staff admin',
+    id: () => 'uid=501(admin) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts)',
+    env: () => `
+TERM=xterm-256color
+SHELL=/bin/bash
+USER=admin
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+HOME=/Users/admin
+    `,
+    which: (args) => {
+        const cmd = args[0];
+        if (!cmd) return 'which: not enough arguments';
+        const paths: Record<string, string> = {
+            'ls': '/bin/ls',
+            'open': '/usr/bin/open',
+            'node': '/usr/local/bin/node'
+        };
+        return paths[cmd] || `${cmd} not found`;
+    },
+    curl: (args) => `curl: (6) Could not resolve host: ${args[0] || ''}`,
+    wget: (args) => `wget: unable to resolve host address ‘${args[0] || ''}’`,
+    chown: () => 'chown: Operation not permitted',
+    chmod: () => 'chmod: Operation not permitted',
+    mv: () => 'mv: Read-only file system',
+    cp: () => 'cp: Read-only file system',
+    free: () => `
+              total        used        free      shared  buff/cache   available
+Mem:      16334704     4432244     11902460      182880     2437200    13984380
+Swap:            0           0           0
+    `,
+    dmesg: () => 'dmesg: Operation not permitted',
+    lscpu: () => `
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                8
+On-line CPU(s) list:   0-7
+Vendor ID:             GenuineIntel
+Model name:            Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz
+    `,
 };
 
 
 export default function Terminal() {
-    const { state: desktopState } = useDesktop();
+    const { state: desktopState, dispatch } = useDesktop();
     const [history, setHistory] = useState<string[]>([]);
     const [input, setInput] = useState('');
     const [internalState, setInternalState] = useState({ currentPath: '/', history: [] as string[] });
@@ -75,7 +169,7 @@ export default function Terminal() {
     }, [history]);
 
     const handleCommand = (command: string) => {
-        const [cmd, ...args] = command.split(' ');
+        const [cmd, ...args] = command.trim().split(' ');
         let output;
 
         if (cmd === 'clear') {
@@ -85,7 +179,7 @@ export default function Terminal() {
         }
 
         if (COMMANDS[cmd]) {
-            const result = COMMANDS[cmd](args, { ...internalState, desktopFiles: desktopState.desktopFiles });
+            const result = COMMANDS[cmd](args, { ...internalState, desktopFiles: desktopState.desktopFiles, windows: desktopState.windows }, dispatch);
             output = result;
         } else {
             output = `bash: ${cmd}: command not found`;
