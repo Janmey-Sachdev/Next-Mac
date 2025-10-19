@@ -1,4 +1,3 @@
-
 'use client';
 import type { File } from '@/lib/apps';
 import Image from 'next/image';

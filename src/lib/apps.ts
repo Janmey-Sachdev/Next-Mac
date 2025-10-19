@@ -7,7 +7,7 @@ import TaskManager from '@/components/apps/TaskManager';
 import WordProcessor from '@/components/apps/WordProcessor';
 import Spreadsheet from '@/components/apps/Spreadsheet';
 import Computer from '@/components/apps/Computer';
-import Photos from '@/components/apps/ImageViewer';
+import Photos from '@/components/apps/Photos';
 import ImageEditor from '@/components/apps/ImageEditor';
 import Terminal from '@/components/apps/Terminal';
 import CameraApp from '@/components/apps/Camera';
