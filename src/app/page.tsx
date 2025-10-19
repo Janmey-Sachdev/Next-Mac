@@ -5,13 +5,18 @@ import BootScreen from '@/components/system/BootScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DesktopProvider } from '@/contexts/DesktopContext';
 import ShutdownScreen from '@/components/system/ShutdownScreen';
+import LoginScreen from '@/components/system/LoginScreen';
 
-type SystemState = 'booting' | 'desktop' | 'shutdown';
+type SystemState = 'booting' | 'login' | 'desktop' | 'shutdown';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
 
   const handleBooted = () => {
+    setSystemState('login');
+  };
+  
+  const handleLogin = () => {
     setSystemState('desktop');
   };
   
@@ -27,6 +32,10 @@ function App() {
     <>
       <AnimatePresence>
         {systemState === 'booting' && <BootScreen onBooted={handleBooted} />}
+      </AnimatePresence>
+      
+      <AnimatePresence>
+        {systemState === 'login' && <LoginScreen onLogin={handleLogin} />}
       </AnimatePresence>
       
       <AnimatePresence>
