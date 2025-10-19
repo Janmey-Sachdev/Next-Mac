@@ -1,5 +1,4 @@
 import DynamicWallpaper from '@/components/system/DynamicWallpaper';
-import ChangePassword from '@/components/system/ChangePassword';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -30,14 +29,6 @@ export default function SettingsApp() {
             Use AI to generate a unique wallpaper based on a theme.
           </p>
           <DynamicWallpaper />
-        </section>
-        <Separator />
-        <section>
-          <h2 className="text-lg font-semibold mb-2">Security</h2>
-           <p className="text-muted-foreground mb-4">
-            Change your login password. The system will reboot after saving.
-          </p>
-          <ChangePassword />
         </section>
       </div>
     </div>

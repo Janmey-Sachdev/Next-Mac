@@ -185,15 +185,9 @@ interface DesktopContextType {
   dispatch: Dispatch<Action>;
   wallpaper: string;
   setWallpaper: (url: string) => void;
-  getStoredPassword: () => string;
-  savePassword: (current: string, newPass: string) => boolean;
 }
 
 const DesktopContext = createContext<DesktopContextType | null>(null);
-
-const PASSWORD_KEY = 'nextmac_password';
-const DEFAULT_PASSWORD = 'admin';
-
 
 const getInitialDesktopState = (): DesktopState => {
   if (typeof window === 'undefined') {
@@ -233,41 +227,9 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error writing desktop state to localStorage', error);
     }
   }, [state.desktopFiles]);
-  
-  const getStoredPassword = useCallback((): string => {
-    if (typeof window === 'undefined') return DEFAULT_PASSWORD;
-    try {
-      const savedPass = window.localStorage.getItem(PASSWORD_KEY);
-      if (savedPass === null) {
-        // Set default if not exists
-        window.localStorage.setItem(PASSWORD_KEY, DEFAULT_PASSWORD);
-        return DEFAULT_PASSWORD;
-      }
-      return savedPass;
-    } catch (e) {
-      console.error("Could not access password from local storage", e);
-      return DEFAULT_PASSWORD;
-    }
-  }, []);
-  
-  const savePassword = useCallback((current: string, newPass: string): boolean => {
-     if (typeof window === 'undefined') return false;
-     const storedPassword = getStoredPassword();
-     if(current !== storedPassword) {
-         return false;
-     }
-     try {
-        window.localStorage.setItem(PASSWORD_KEY, newPass);
-        return true;
-     } catch (e) {
-        console.error("Could not save password to local storage", e);
-        return false;
-     }
-  }, [getStoredPassword]);
-
 
   return (
-    <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper, getStoredPassword, savePassword }}>
+    <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper }}>
       {children}
     </DesktopContext.Provider>
   );

@@ -2,20 +2,15 @@
 import { useState } from 'react';
 import Desktop from '@/components/system/Desktop';
 import BootScreen from '@/components/system/BootScreen';
-import LoginScreen from '@/components/system/LoginScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DesktopProvider } from '@/contexts/DesktopContext';
 
-type SystemState = 'booting' | 'login' | 'desktop';
+type SystemState = 'booting' | 'desktop';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
 
   const handleBooted = () => {
-    setSystemState('login');
-  };
-
-  const handleLoginSuccess = () => {
     setSystemState('desktop');
   };
 
@@ -25,10 +20,6 @@ function App() {
         {systemState === 'booting' && <BootScreen onBooted={handleBooted} />}
       </AnimatePresence>
       
-      <AnimatePresence>
-        {systemState === 'login' && <LoginScreen onLoginSuccess={handleLoginSuccess} />}
-      </AnimatePresence>
-
       <AnimatePresence>
         {systemState === 'desktop' && (
           <motion.div
