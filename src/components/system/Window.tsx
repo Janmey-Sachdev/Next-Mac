@@ -6,6 +6,7 @@ import { motion, useDragControls } from 'framer-motion';
 import { Maximize, Minimize, Minus, Square, X, Copy } from 'lucide-react';
 import type { PointerEvent } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import { useSound } from '@/contexts/SoundContext';
 
 interface WindowProps {
   instance: WindowInstance;
@@ -42,6 +43,7 @@ const TrafficLight = ({
 
 export default function Window({ instance }: WindowProps) {
   const { dispatch, state } = useDesktop();
+  const { playSound } = useSound();
   const appInfo = APPS.find((app) => app.id === instance.appId);
   const App = appInfo?.component;
   const isFocused = state.focusedWindow === instance.id;
@@ -64,14 +66,30 @@ export default function Window({ instance }: WindowProps) {
   const handleToggleMaximize = () => {
     if (instance.state !== 'maximized') {
         setPreMaximizeState({ pos: instance.position, size: instance.size });
+        playSound('windowMaximize');
+    } else {
+        playSound('windowMinimize');
     }
     dispatch({ type: 'TOGGLE_MAXIMIZE', payload: instance.id });
   }
 
   const handleMinimize = () => {
+    playSound('windowMinimize');
     dispatch({ type: 'MINIMIZE', payload: instance.id });
   }
   
+  const handleClose = () => {
+    playSound('windowClose');
+    dispatch({ type: 'CLOSE', payload: instance.id });
+  }
+
+  const handleFocus = () => {
+    if (!isFocused) {
+      playSound('click');
+      dispatch({ type: 'FOCUS', payload: instance.id });
+    }
+  }
+
   const maximizedStyles = {
     top: '32px',
     left: '0px',
@@ -104,7 +122,7 @@ export default function Window({ instance }: WindowProps) {
             });
         }
       }}
-      onPointerDown={() => dispatch({ type: 'FOCUS', payload: instance.id })}
+      onPointerDown={handleFocus}
       className={cn(
         'absolute bg-card/60 backdrop-blur-2xl rounded-lg shadow-2xl border border-white/20 flex flex-col',
         isFocused ? 'ring-1 ring-white/30' : 'ring-1 ring-black/20'
@@ -128,7 +146,7 @@ export default function Window({ instance }: WindowProps) {
         className="h-9 px-3 flex items-center justify-between flex-shrink-0 cursor-move border-b border-white/10"
       >
         <div className="flex items-center gap-2 group">
-          <TrafficLight color="red" onClick={() => dispatch({ type: 'CLOSE', payload: instance.id })}>
+          <TrafficLight color="red" onClick={handleClose}>
              <X size={8} className="text-black/60" />
           </TrafficLight>
           <TrafficLight color="yellow" onClick={handleMinimize}>

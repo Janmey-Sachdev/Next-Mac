@@ -4,6 +4,7 @@ import { APPS } from '@/lib/apps';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Dispatch, ReactNode } from 'react';
 import { createContext, useContext, useReducer, useState, useEffect, useCallback } from 'react';
+import { useSound } from './SoundContext';
 
 export interface WindowInstance {
   id: string;
@@ -216,6 +217,21 @@ const getInitialDesktopState = (): DesktopState => {
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(desktopReducer, getInitialDesktopState());
   const [wallpaper, setWallpaper] = useState(PlaceHolderImages[0]?.imageUrl || '');
+  const { playSound } = useSound();
+
+  const instrumentedDispatch: Dispatch<Action> = useCallback((action) => {
+    // Sound effects based on action type
+    switch (action.type) {
+        case 'OPEN':
+            playSound('windowOpen');
+            break;
+        case 'CREATE_FOLDER':
+            playSound('tink');
+            break;
+        // Close, minimize etc handled in Window component to have access to `playSound`
+    }
+    return dispatch(action);
+  }, [playSound]);
 
   useEffect(() => {
     try {
@@ -227,9 +243,14 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error writing desktop state to localStorage', error);
     }
   }, [state.desktopFiles]);
+  
+  useEffect(() => {
+    playSound('startup');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <DesktopContext.Provider value={{ apps: APPS, state, dispatch, wallpaper, setWallpaper }}>
+    <DesktopContext.Provider value={{ apps: APPS, state, dispatch: instrumentedDispatch, wallpaper, setWallpaper }}>
       {children}
     </DesktopContext.Provider>
   );

@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { SoundProvider } from '@/contexts/SoundContext';
 
 export const metadata: Metadata = {
   title: 'NextOS',
@@ -22,8 +23,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
         <ThemeProvider>
-          {children}
-          <Toaster />
+          <SoundProvider>
+            {children}
+            <Toaster />
+          </SoundProvider>
         </ThemeProvider>
       </body>
     </html>
