@@ -4,7 +4,7 @@ import { useDesktop } from '@/contexts/DesktopContext';
 import type { File } from '@/lib/apps';
 
 const COMMANDS: Record<string, (args: string[], state: any, dispatch: any) => string | { type: 'table', data: Record<string, string>[] }> = {
-    help: () => 'Available commands: help, clear, echo, date, whoami, ls, cd, pwd, uname, neofetch, exit, touch, mkdir, cat, rm, open, close, ps, uptime, hostname, ifconfig, who, last, groups, id, env, which, curl, wget, chown, chmod, mv, cp, free, dmesg, lscpu',
+    help: () => 'Available commands: help, clear, echo, date, whoami, ls, cd, pwd, uname, neofetch, exit, touch, mkdir, cat, rm, open, close, ps, uptime, hostname, ifconfig, who, last, groups, id, env, which, curl, wget, chown, chmod, mv, cp, free, dmesg, lscpu, ping, top, history, man, sudo, df, kill, reboot',
     clear: () => '',
     echo: (args) => args.join(' '),
     date: () => new Date().toString(),
@@ -177,9 +177,11 @@ export default function Terminal() {
             setInternalState(prev => ({ ...prev, history: [...prev.history, command] }));
             return;
         }
+        
+        const commandKey = cmd.toLowerCase();
 
-        if (COMMANDS[cmd]) {
-            const result = COMMANDS[cmd](args, { ...internalState, desktopFiles: desktopState.desktopFiles, windows: desktopState.windows }, dispatch);
+        if (COMMANDS[commandKey]) {
+            const result = COMMANDS[commandKey](args, { ...internalState, desktopFiles: desktopState.desktopFiles, windows: desktopState.windows }, dispatch);
             output = result;
         } else {
             output = `bash: ${cmd}: command not found`;
@@ -192,7 +194,11 @@ export default function Terminal() {
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            handleCommand(input);
+            if (input.trim()) {
+                handleCommand(input);
+            } else {
+                 setHistory(prev => [...prev, '>']);
+            }
             setInput('');
         }
     };
@@ -206,7 +212,10 @@ export default function Terminal() {
                  <div ref={endOfHistoryRef} />
             </div>
             <div className="flex">
-                <span>&gt;</span>
+                <span className="text-green-400">admin@nextmac</span>
+                <span className="text-gray-500 mx-1">:</span>
+                <span className="text-blue-400">~</span>
+                <span className="text-gray-500 mx-1">$</span>
                 <input
                     id="terminal-input"
                     type="text"
