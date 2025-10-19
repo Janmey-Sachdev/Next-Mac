@@ -24,7 +24,10 @@ export default function Browser() {
   }
 
   const refresh = () => {
-    iframeRef.current?.contentWindow?.location.reload();
+    if (iframeRef.current) {
+      // Re-setting the src is a safe way to "refresh" a cross-origin iframe
+      iframeRef.current.src = url;
+    }
   };
   
   const goBack = () => {
