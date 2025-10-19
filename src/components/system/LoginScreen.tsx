@@ -69,7 +69,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <h2 className="text-2xl font-medium text-white drop-shadow-md">
-            Admin User
+            User Admin
           </h2>
           <div className="relative w-64">
             <Input
