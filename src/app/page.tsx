@@ -1,17 +1,28 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Desktop from '@/components/system/Desktop';
 import BootScreen from '@/components/system/BootScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DesktopProvider } from '@/contexts/DesktopContext';
 import ShutdownScreen from '@/components/system/ShutdownScreen';
 import LoginScreen from '@/components/system/LoginScreen';
+import InstallationScreen from '@/components/system/InstallationScreen';
 
-type SystemState = 'booting' | 'login' | 'desktop' | 'shutdown';
+type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
 
+  useEffect(() => {
+    const isInstalled = localStorage.getItem('nextmac_installed') === 'true';
+    setSystemState(isInstalled ? 'booting' : 'installing');
+  }, []);
+
+  const handleInstalled = () => {
+    localStorage.setItem('nextmac_installed', 'true');
+    setSystemState('booting');
+  };
+  
   const handleBooted = () => {
     setSystemState('login');
   };
@@ -30,6 +41,10 @@ function App() {
 
   return (
     <>
+      <AnimatePresence>
+        {systemState === 'installing' && <InstallationScreen onInstalled={handleInstalled} />}
+      </AnimatePresence>
+
       <AnimatePresence>
         {systemState === 'booting' && <BootScreen onBooted={handleBooted} />}
       </AnimatePresence>
