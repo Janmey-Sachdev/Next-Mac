@@ -1,4 +1,5 @@
-import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music } from 'lucide-react';
+
+import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -14,6 +15,7 @@ import CameraApp from '@/components/apps/Camera';
 import VideoPlayer from '@/components/apps/VideoPlayer';
 import MusicPlayer from '@/components/apps/MusicPlayer';
 import { AppleLogo } from '@/components/system/AppleLogo';
+import AppStore from '@/components/apps/AppStore';
 
 
 export interface File {
@@ -123,4 +125,11 @@ export const APPS: App[] = [
     component: MusicPlayer,
     defaultSize: [480, 600]
   },
+  {
+    id: 'app-store',
+    name: 'App Store',
+    icon: ShoppingCart,
+    component: AppStore,
+    defaultSize: [960, 720]
+  }
 ];
