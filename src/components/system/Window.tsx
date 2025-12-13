@@ -94,7 +94,7 @@ export default function Window({ instance }: WindowProps) {
     top: '2rem', // 32px for top bar
     left: '0px',
     width: '100vw',
-    height: 'calc(100vh - 2rem - 5rem)', // 32px top bar, 80px dock
+    height: 'calc(100vh - 2rem)', // Full height minus top bar
     transform: 'none'
   };
 
