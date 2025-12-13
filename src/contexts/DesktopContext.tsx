@@ -310,10 +310,27 @@ const getInitialDesktopState = (): DesktopState => {
   return { ...initialState, password: 'PASSWORD', installedApps: initialCoreApps };
 };
 
+const getInitialWallpaper = (): string => {
+    if (typeof window !== 'undefined') {
+        const savedWallpaper = localStorage.getItem('desktopWallpaper');
+        if (savedWallpaper) {
+            return savedWallpaper;
+        }
+    }
+    return PlaceHolderImages[0]?.imageUrl || '';
+}
+
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(desktopReducer, getInitialDesktopState());
-  const [wallpaper, setWallpaper] = useState(PlaceHolderImages[0]?.imageUrl || '');
+  const [wallpaper, setWallpaperState] = useState(getInitialWallpaper());
   const { playSound } = useSound();
+
+  const setWallpaper = (url: string) => {
+    setWallpaperState(url);
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('desktopWallpaper', url);
+    }
+  };
 
   const instrumentedDispatch: Dispatch<Action> = useCallback((action) => {
     // Sound effects based on action type
