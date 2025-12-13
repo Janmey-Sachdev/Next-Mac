@@ -1,5 +1,5 @@
 
-import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2 } from 'lucide-react';
+import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2, Dices, Puzzle, Swords, Shield, Ghost, Crosshair, Crown, Gamepad2, Heart, Skull } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -139,5 +139,76 @@ export const APPS: App[] = [
     icon: Trash2,
     component: Trash,
     defaultSize: [640, 480],
-  }
+  },
+  // Games
+  {
+    id: 'game-dice',
+    name: 'Dice Roller',
+    icon: Dices,
+    component: Computer, // Placeholder component
+    defaultSize: [400, 300],
+  },
+  {
+    id: 'game-puzzle',
+    name: 'Jigsaw',
+    icon: Puzzle,
+    component: Computer,
+    defaultSize: [600, 600],
+  },
+  {
+    id: 'game-swords',
+    name: 'Blade Master',
+    icon: Swords,
+    component: Computer,
+    defaultSize: [800, 600],
+  },
+  {
+    id: 'game-shield',
+    name: 'Castle Defense',
+    icon: Shield,
+    component: Computer,
+    defaultSize: [800, 600],
+  },
+  {
+    id: 'game-ghost',
+    name: 'Spooky Manor',
+    icon: Ghost,
+    component: Computer,
+    defaultSize: [720, 480],
+  },
+  {
+    id: 'game-crosshair',
+    name: 'Target Practice',
+    icon: Crosshair,
+    component: Computer,
+    defaultSize: [800, 600],
+  },
+  {
+    id: 'game-crown',
+    name: 'Kingdoms',
+    icon: Crown,
+    component: Computer,
+    defaultSize: [1024, 768],
+  },
+  {
+    id: 'game-gamepad',
+    name: 'Retro Arcade',
+    icon: Gamepad2,
+    component: Computer,
+    defaultSize: [640, 480],
+  },
+  {
+    id: 'game-heart',
+    name: 'Card Sharps',
+    icon: Heart,
+    component: Computer,
+    defaultSize: [600, 400],
+  },
+  {
+    id: 'game-skull',
+    name: 'Dungeon Crawler',
+    icon: Skull,
+    component: Computer,
+    defaultSize: [800, 600],
+  },
 ];

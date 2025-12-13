@@ -1,3 +1,4 @@
+
 'use client';
 import { useDesktop } from '@/contexts/DesktopContext';
 import AppIcon from './AppIcon';
@@ -11,8 +12,13 @@ export default function Dock() {
 
   const openAppIds = new Set(state.windows.map((w) => w.appId));
 
-  const finderApp = apps.find(app => app.id === 'finder');
-  const otherApps = apps.filter(app => app.id !== 'finder');
+  // Core apps that are always on the dock
+  const coreAppIds = ['finder', 'app-store', 'settings', 'terminal', 'trash'];
+  const coreApps = apps.filter(app => coreAppIds.includes(app.id));
+  
+  // Other apps that are currently open
+  const openNonCoreApps = apps.filter(app => !coreAppIds.includes(app.id) && openAppIds.has(app.id));
+
 
   return (
     <footer
@@ -24,20 +30,20 @@ export default function Dock() {
         ref={dockRef}
         className="flex items-end h-20 justify-center gap-2 p-2 bg-white/20 backdrop-blur-2xl rounded-2xl border border-white/30 shadow-lg"
       >
-        {finderApp && (
+        {coreApps.map((app) => (
           <AppIcon
-            key={finderApp.id}
-            app={finderApp}
-            onClick={() => dispatch({ type: 'OPEN', payload: { appId: finderApp.id } })}
-            isOpen={openAppIds.has(finderApp.id)}
+            key={app.id}
+            app={app}
+            onClick={() => dispatch({ type: 'OPEN', payload: { appId: app.id } })}
+            isOpen={openAppIds.has(app.id)}
             isDock
             isHovered={hovered}
           />
-        )}
+        ))}
 
-        <Separator orientation="vertical" className="h-12 mx-1 bg-white/30" />
+        {(openNonCoreApps.length > 0) && <Separator orientation="vertical" className="h-12 mx-1 bg-white/30" />}
         
-        {otherApps.map((app) => (
+        {openNonCoreApps.map((app) => (
           <AppIcon
             key={app.id}
             app={app}

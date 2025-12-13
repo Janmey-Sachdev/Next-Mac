@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 export default function AppStore() {
   const { dispatch } = useDesktop();
 
-  // Exclude Finder and the App Store itself, then take the last 8.
-  const appsToShow = APPS.filter(app => app.id !== 'finder' && app.id !== 'app-store').slice(-8);
+  // Exclude core system apps that are always present
+  const coreAppIds = ['finder', 'settings', 'task-manager', 'terminal', 'trash', 'app-store'];
+  const appsToShow = APPS.filter(app => !coreAppIds.includes(app.id));
 
   const handleOpenApp = (appId: string) => {
     dispatch({ type: 'OPEN', payload: { appId } });
