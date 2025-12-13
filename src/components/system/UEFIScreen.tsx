@@ -85,6 +85,8 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
   const [currentView, setCurrentView] = useState<'main' | 'chipset'>('main');
   const [focusedSetting, setFocusedSetting] = useState(0);
 
+  const advancedSettingsCount = 4; // Number of settings in the Advanced tab
+
   useEffect(() => {
     const timer = setInterval(() => {
         const now = new Date();
@@ -96,7 +98,21 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
 
   useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
-          if (currentView === 'main' && activeTab === 'advanced' && e.key === 'Enter' && focusedSetting === 3) {
+          if (currentView !== 'main') return;
+          
+          if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              if(activeTab === 'advanced') {
+                setFocusedSetting(prev => (prev + 1) % advancedSettingsCount);
+              }
+          }
+          if (e.key === 'ArrowUp') {
+              e.preventDefault();
+               if(activeTab === 'advanced') {
+                setFocusedSetting(prev => (prev - 1 + advancedSettingsCount) % advancedSettingsCount);
+              }
+          }
+          if (e.key === 'Enter' && activeTab === 'advanced' && focusedSetting === 3) {
               setCurrentView('chipset');
           }
       };
@@ -104,7 +120,12 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
 
-  }, [currentView, activeTab, focusedSetting]);
+  }, [currentView, activeTab, focusedSetting, advancedSettingsCount]);
+
+  // Reset focus when tab changes
+  useEffect(() => {
+    setFocusedSetting(0);
+  }, [activeTab]);
 
   return (
     <motion.div
@@ -386,5 +407,3 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
     </motion.div>
   );
 }
-
-    
