@@ -9,12 +9,15 @@ interface AppMenuProps {
 }
 
 export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
-  const { apps, dispatch } = useDesktop();
+  const { apps, state, dispatch } = useDesktop();
+  const { installedApps } = state;
 
   const handleAppClick = (appId: string) => {
     dispatch({ type: 'OPEN', payload: { appId } });
     onClose();
   };
+
+  const appsToShow = apps.filter(app => installedApps.includes(app.id));
 
   return (
     <AnimatePresence>
@@ -34,7 +37,7 @@ export default function AppMenu({ isOpen, onClose }: AppMenuProps) {
             className="grid grid-cols-6 gap-8 p-16 max-w-4xl mx-auto mt-32"
             onClick={(e) => e.stopPropagation()}
           >
-            {apps.map((app) => (
+            {appsToShow.map((app) => (
               <AppIcon
                 key={app.id}
                 app={app}

@@ -25,6 +25,7 @@ interface DesktopState {
   trashedFiles: File[];
   password?: string;
   shutdownInitiated: boolean;
+  installedApps: string[];
 }
 
 type Action =
@@ -42,8 +43,12 @@ type Action =
   | { type: 'RESTORE_FILE'; payload: string }
   | { type: 'PERMANENTLY_DELETE_FILE'; payload: string }
   | { type: 'CHANGE_PASSWORD'; payload: string }
-  | { type: 'SHUTDOWN' };
+  | { type: 'SHUTDOWN' }
+  | { type: 'INSTALL_APP'; payload: string }
+  | { type: 'UNINSTALL_APP'; payload: string };
 
+
+const initialCoreApps = ['finder', 'settings', 'task-manager', 'terminal', 'trash', 'app-store'];
 
 const initialState: DesktopState = {
   windows: [],
@@ -53,6 +58,7 @@ const initialState: DesktopState = {
   trashedFiles: [],
   password: 'PASSWORD',
   shutdownInitiated: false,
+  installedApps: initialCoreApps,
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -60,6 +66,8 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
     case 'OPEN': {
       const app = APPS.find((a) => a.id === action.payload.appId);
       if (!app) return state;
+
+      if(!state.installedApps.includes(app.id)) return state;
 
       // Check if a single-instance app is already open
       const singleInstanceApps = ['finder', 'trash', 'app-store', 'settings'];
@@ -244,6 +252,22 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
     }
     case 'SHUTDOWN':
       return { ...state, shutdownInitiated: true };
+    
+    case 'INSTALL_APP':
+        if (state.installedApps.includes(action.payload)) return state;
+        return {
+            ...state,
+            installedApps: [...state.installedApps, action.payload]
+        };
+
+    case 'UNINSTALL_APP':
+        if (!state.installedApps.includes(action.payload) || initialCoreApps.includes(action.payload)) return state;
+        return {
+            ...state,
+            installedApps: state.installedApps.filter(id => id !== action.payload),
+            windows: state.windows.filter(w => w.appId !== action.payload),
+        };
+
     default:
       return state;
   }
@@ -277,12 +301,13 @@ const getInitialDesktopState = (): DesktopState => {
         password: savedState.password || 'PASSWORD',
         desktopFiles: migratedFiles,
         trashedFiles: savedState.trashedFiles || [],
+        installedApps: savedState.installedApps || initialCoreApps,
       };
     }
   } catch (error) {
     console.error('Error reading desktop state from localStorage', error);
   }
-  return { ...initialState, password: 'PASSWORD' };
+  return { ...initialState, password: 'PASSWORD', installedApps: initialCoreApps };
 };
 
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
@@ -316,12 +341,13 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         password: state.password,
         desktopFiles: state.desktopFiles,
         trashedFiles: state.trashedFiles,
+        installedApps: state.installedApps,
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.password, state.desktopFiles, state.trashedFiles]);
+  }, [state.password, state.desktopFiles, state.trashedFiles, state.installedApps]);
   
   useEffect(() => {
     playSound('startup');
