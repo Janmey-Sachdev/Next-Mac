@@ -2,98 +2,231 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { HardDrive, Power, Save } from 'lucide-react';
+import { Power, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState } from 'react';
 
 interface UEFIScreenProps {
     onRestart: () => void;
 }
 
+const BIOSSetting = ({ label, children }: { label: string, children: React.ReactNode }) => (
+    <div className="flex items-center justify-between">
+        <label className="text-gray-400">{label}:</label>
+        {children}
+    </div>
+);
+
 export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
+  const [time, setTime] = useState('');
+  const [date, setDate] = useState('');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+        const now = new Date();
+        setTime(now.toLocaleTimeString('en-US', { hour12: false }));
+        setDate(now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' }));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, filter: 'blur(5px)' }}
       animate={{ opacity: 1, filter: 'blur(0px)' }}
-      className="fixed inset-0 bg-gray-800 text-white font-mono z-[10001] p-8 flex items-center justify-center"
+      className="fixed inset-0 bg-gray-800 text-white font-mono z-[10001] p-4 flex items-center justify-center"
     >
-        <Card className="w-full max-w-4xl bg-gray-900/80 backdrop-blur-sm border-blue-500 text-gray-200">
-            <CardHeader className="border-b border-blue-500/50">
-                <CardTitle className="text-2xl text-center text-blue-300">
+        <Card className="w-full max-w-6xl h-[90vh] bg-gray-900/80 backdrop-blur-sm border-blue-500 text-gray-200 flex flex-col">
+            <CardHeader className="border-b border-blue-500/50 text-center py-2">
+                <CardTitle className="text-xl text-blue-300">
                     NextMac UEFI BIOS Utility
                 </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                    <h3 className="text-lg font-semibold text-blue-400">System Configuration</h3>
-                    <div className="flex items-center justify-between">
-                        <label>SATA Mode:</label>
-                        <Select defaultValue="ahci">
-                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                                <SelectItem value="ahci">AHCI</SelectItem>
-                                <SelectItem value="raid">RAID</SelectItem>
-                                <SelectItem value="ide">IDE</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                     <div className="flex items-center justify-between">
-                        <label>Virtualization:</label>
-                        <Select defaultValue="enabled">
-                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                                <SelectItem value="enabled">Enabled</SelectItem>
-                                <SelectItem value="disabled">Disabled</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+            <CardContent className="p-4 flex-grow">
+                <Tabs defaultValue="main" className="h-full flex flex-col">
+                    <TabsList className="grid w-full grid-cols-7 bg-blue-900/50">
+                        <TabsTrigger value="main">Main</TabsTrigger>
+                        <TabsTrigger value="advanced">Advanced</TabsTrigger>
+                        <TabsTrigger value="peripherals">Peripherals</TabsTrigger>
+                        <TabsTrigger value="power">Power</TabsTrigger>
+                        <TabsTrigger value="health">PC Health</TabsTrigger>
+                        <TabsTrigger value="boot">Boot</TabsTrigger>
+                        <TabsTrigger value="exit">Exit</TabsTrigger>
+                    </TabsList>
 
-                <Separator orientation="vertical" className="hidden md:block bg-blue-500/50" />
-                
-                <div className="space-y-6">
-                    <h3 className="text-lg font-semibold text-blue-400">Boot Options</h3>
-                    <div className="flex items-center justify-between">
-                        <label>Boot Priority #1:</label>
-                         <Select defaultValue="hd">
-                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                                <SelectItem value="hd">Hard Drive</SelectItem>
-                                <SelectItem value="usb">USB Device</SelectItem>
-                                <SelectItem value="network">Network Boot</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <label>Fast Boot:</label>
-                         <Select defaultValue="enabled">
-                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                                <SelectItem value="enabled">Enabled</SelectItem>
-                                <SelectItem value="disabled">Disabled</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+                    <div className="flex-grow mt-4 overflow-y-auto">
+                        <TabsContent value="main" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Standard CMOS Features</h3>
+                             <BIOSSetting label="System Date">
+                                <span className="text-white font-semibold">{date}</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="System Time">
+                                <span className="text-white font-semibold">{time}</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="SATA Port 1">
+                                <span className="text-white">VIRTUAL-HD 1024GB</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="SATA Port 2">
+                                <span className="text-white">VIRTUAL-CD/DVD</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="Total Memory">
+                                <span className="text-white">16384 MB</span>
+                            </BIOSSetting>
+                        </TabsContent>
 
-                <div className="col-span-1 md:col-span-2 pt-6 flex justify-end gap-4 border-t border-blue-500/50">
-                    <Button variant="outline" className="border-blue-400 text-blue-300 hover:bg-blue-900 hover:text-white" onClick={onRestart}>
-                        <Save className="mr-2 h-4 w-4"/>
-                        Save & Exit
-                    </Button>
-                     <Button variant="destructive" onClick={onRestart}>
-                        <Power className="mr-2 h-4 w-4"/>
-                        Discard & Exit
-                    </Button>
-                </div>
+                        <TabsContent value="advanced" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Advanced BIOS Features</h3>
+                             <BIOSSetting label="CPU Virtualization">
+                                <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="Hyper-Threading">
+                                 <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                        </TabsContent>
+
+                        <TabsContent value="peripherals" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Integrated Peripherals</h3>
+                             <BIOSSetting label="Onboard LAN Controller">
+                                <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                              <BIOSSetting label="Onboard Audio Controller">
+                                <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="SATA Mode">
+                                <Select defaultValue="ahci">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="ahci">AHCI</SelectItem>
+                                        <SelectItem value="raid">RAID</SelectItem>
+                                        <SelectItem value="ide">IDE</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                        </TabsContent>
+                        
+                        <TabsContent value="power" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Power Management Setup</h3>
+                            <BIOSSetting label="ACPI Suspend Type">
+                                <Select defaultValue="s3">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="s1">S1 (POS)</SelectItem>
+                                        <SelectItem value="s3">S3 (STR)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="Repost Video on S3 Resume">
+                                <Select defaultValue="no">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="no">No</SelectItem>
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                        </TabsContent>
+
+                        <TabsContent value="health" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">PC Health Status</h3>
+                            <BIOSSetting label="CPU Temperature">
+                                <span className="text-green-400">45°C / 113°F</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="System Temperature">
+                                <span className="text-green-400">35°C / 95°F</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="CPU Fan Speed">
+                                <span className="text-white">1500 RPM</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="Chassis Fan Speed">
+                                <span className="text-white">800 RPM</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="Vcore Voltage">
+                                <span className="text-yellow-400">1.250V</span>
+                            </BIOSSetting>
+                        </TabsContent>
+                        
+                        <TabsContent value="boot" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Boot Options</h3>
+                            <BIOSSetting label="Boot Priority #1">
+                                <Select defaultValue="hd">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="hd">Hard Drive</SelectItem>
+                                        <SelectItem value="usb">USB Device</SelectItem>
+                                        <SelectItem value="network">Network Boot</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                            <BIOSSetting label="Fast Boot">
+                                <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                        </TabsContent>
+
+                        <TabsContent value="exit" className="space-y-6">
+                            <h3 className="text-lg font-semibold text-blue-400">Exit</h3>
+                            <p className="text-gray-400">Save your changes or discard and exit setup.</p>
+                            <div className="flex justify-start gap-4 pt-4">
+                                <Button variant="outline" className="border-blue-400 text-blue-300 hover:bg-blue-900 hover:text-white" onClick={onRestart}>
+                                    <Save className="mr-2 h-4 w-4"/>
+                                    Save & Exit Setup
+                                </Button>
+                                <Button variant="destructive" onClick={onRestart}>
+                                    <Power className="mr-2 h-4 w-4"/>
+                                    Discard Changes & Exit
+                                </Button>
+                            </div>
+                        </TabsContent>
+                    </div>
+                </Tabs>
             </CardContent>
         </Card>
     </motion.div>
