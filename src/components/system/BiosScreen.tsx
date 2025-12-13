@@ -75,7 +75,7 @@ export default function BiosScreen({ onRestart, onEnterUefi }: BiosScreenProps) 
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 bg-[#000080] text-[#FFFFFF] font-mono text-lg p-8 z-[10000]"
+      className="fixed inset-0 bg-[#000080] text-[#FFFFFF] font-mono text-lg p-8 z-[10000] cursor-bios"
     >
       <pre className="whitespace-pre-wrap">{displayedText}</pre>
       {showRebootMessage && (
