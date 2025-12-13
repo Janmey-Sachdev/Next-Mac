@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 interface BiosScreenProps {
   onRestart: () => void;
+  onEnterUefi: () => void;
 }
 
 const BIOS_TEXT = `
@@ -19,7 +20,7 @@ Primary Slave  : None
 Secondary Master : VIRTUAL-CD/DVD
 Secondary Slave  : None
 
-Press F2 to enter SETUP, F12 for boot menu...
+Press B to enter UEFI SETUP, F12 for boot menu...
 
 Initializing USB Controllers .. Done
 16384MB OK
@@ -28,7 +29,7 @@ Initializing USB Controllers .. Done
 Booting from Hard Disk...
 `;
 
-export default function BiosScreen({ onRestart }: BiosScreenProps) {
+export default function BiosScreen({ onRestart, onEnterUefi }: BiosScreenProps) {
     const [displayedText, setDisplayedText] = useState('');
     const [showRebootMessage, setShowRebootMessage] = useState(false);
     
@@ -54,11 +55,14 @@ export default function BiosScreen({ onRestart }: BiosScreenProps) {
                 if (e.key.toLowerCase() === 'r') {
                     onRestart();
                 }
+                if (e.key.toLowerCase() === 'b') {
+                    onEnterUefi();
+                }
             };
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [showRebootMessage, onRestart]);
+    }, [showRebootMessage, onRestart, onEnterUefi]);
 
   return (
     <motion.div
@@ -70,7 +74,7 @@ export default function BiosScreen({ onRestart }: BiosScreenProps) {
       {showRebootMessage && (
           <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="mt-4">
             <p>System Check Complete. All systems nominal.</p>
-            <p className="bg-white text-blue-800 p-1 mt-2 inline-block">Press 'R' to Restart and boot the operating system.</p>
+            <p className="bg-white text-blue-800 p-1 mt-2 inline-block">Press 'R' to Restart or 'B' to enter UEFI setup.</p>
           </motion.div>
       )}
     </motion.div>

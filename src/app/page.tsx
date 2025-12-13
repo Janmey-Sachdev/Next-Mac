@@ -9,9 +9,10 @@ import LoginScreen from '@/components/system/LoginScreen';
 import InstallationScreen from '@/components/system/InstallationScreen';
 import EmergencyMode from '@/components/system/EmergencyMode';
 import BiosScreen from '@/components/system/BiosScreen';
+import UEFIScreen from '@/components/system/UEFIScreen';
 
 
-type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown' | 'emergency' | 'bios';
+type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown' | 'emergency' | 'bios' | 'uefi';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
@@ -57,6 +58,10 @@ function App() {
 
   const enterBios = () => {
     setSystemState('bios');
+  }
+
+  const enterUefi = () => {
+    setSystemState('uefi');
   }
 
   const exitEmergency = () => {
@@ -106,7 +111,11 @@ function App() {
       </AnimatePresence>
 
        <AnimatePresence>
-        {systemState === 'bios' && <BiosScreen onRestart={handleRestart} />}
+        {systemState === 'bios' && <BiosScreen onRestart={handleRestart} onEnterUefi={enterUefi} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {systemState === 'uefi' && <UEFIScreen onRestart={handleRestart} />}
       </AnimatePresence>
     </>
   );
