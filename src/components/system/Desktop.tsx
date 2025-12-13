@@ -115,7 +115,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     }
   }, [state.shutdownInitiated, onShutdown]);
 
-  const installedSystemApps = APPS.filter(app => state.installedApps.includes(app.id));
+  const installedSystemApps = APPS.filter(app => state.installedApps.includes(app.id) && !state.pinnedApps.includes(app.id));
 
   return (
     <main
