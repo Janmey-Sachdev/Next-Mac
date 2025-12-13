@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +12,8 @@ interface UEFIScreenProps {
     onRestart: () => void;
 }
 
-const BIOSSetting = ({ label, children }: { label: string, children: React.ReactNode }) => (
-    <div className="flex items-center justify-between py-2 border-b border-gray-700/50">
+const BIOSSetting = ({ label, children, focused = false }: { label: string, children: React.ReactNode, focused?: boolean }) => (
+    <div className={`flex items-center justify-between py-2 border-b border-gray-700/50 ${focused ? 'bg-blue-800/50 -mx-2 px-2' : ''}`}>
         <label className="text-gray-400">{label}:</label>
         <div className="w-[250px] text-right">
             {children}
@@ -20,9 +21,69 @@ const BIOSSetting = ({ label, children }: { label: string, children: React.React
     </div>
 );
 
+const ChipsetConfiguration = ({ onBack }: { onBack: () => void }) => {
+     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onBack();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onBack]);
+
+    return (
+        <div className="p-4">
+            <h3 className="text-lg font-semibold text-blue-400 mb-4">Advanced / Chipset Configuration</h3>
+            <BIOSSetting label="VT-d">
+                <Select defaultValue="enabled">
+                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                        <SelectItem value="enabled">Enabled</SelectItem>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                </Select>
+            </BIOSSetting>
+            <BIOSSetting label="Internal Graphics">
+                 <Select defaultValue="auto">
+                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                        <SelectItem value="auto">Auto</SelectItem>
+                        <SelectItem value="enabled">Enabled</SelectItem>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                </Select>
+            </BIOSSetting>
+             <BIOSSetting label="Primary Display">
+                 <Select defaultValue="auto">
+                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                        <SelectItem value="auto">Auto</SelectItem>
+                        <SelectItem value="igfx">IGFX</SelectItem>
+                        <SelectItem value="pcie">PCIE</SelectItem>
+                    </SelectContent>
+                </Select>
+            </BIOSSetting>
+
+            <div className="mt-8 text-center text-sm text-gray-500">
+                <p>Press [ESC] to return to previous menu.</p>
+            </div>
+        </div>
+    )
+}
+
 export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
+  const [activeTab, setActiveTab] = useState('main');
+  const [currentView, setCurrentView] = useState<'main' | 'chipset'>('main');
+  const [focusedSetting, setFocusedSetting] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,6 +93,18 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+          if (currentView === 'main' && activeTab === 'advanced' && e.key === 'Enter' && focusedSetting === 3) {
+              setCurrentView('chipset');
+          }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+
+  }, [currentView, activeTab, focusedSetting]);
 
   return (
     <motion.div
@@ -46,7 +119,8 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-4 flex-grow overflow-hidden">
-                <Tabs defaultValue="main" className="h-full flex flex-col">
+                {currentView === 'main' ? (
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                     <TabsList className="grid w-full grid-cols-7 bg-blue-900/50">
                         <TabsTrigger value="main">Main</TabsTrigger>
                         <TabsTrigger value="advanced">Advanced</TabsTrigger>
@@ -91,7 +165,7 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
 
                         <TabsContent value="advanced" className="space-y-2">
                             <h3 className="text-lg font-semibold text-blue-400 mb-4">Advanced BIOS Features</h3>
-                             <BIOSSetting label="CPU Virtualization">
+                             <BIOSSetting label="CPU Virtualization" focused={focusedSetting === 0}>
                                 <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
                                         <SelectValue />
@@ -102,7 +176,7 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                                     </SelectContent>
                                 </Select>
                             </BIOSSetting>
-                             <BIOSSetting label="Hyper-Threading">
+                             <BIOSSetting label="Hyper-Threading" focused={focusedSetting === 1}>
                                  <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
                                         <SelectValue />
@@ -113,7 +187,7 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                                     </SelectContent>
                                 </Select>
                             </BIOSSetting>
-                            <BIOSSetting label="XHCI Hand-off">
+                            <BIOSSetting label="XHCI Hand-off" focused={focusedSetting === 2}>
                                  <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
                                         <SelectValue />
@@ -124,8 +198,8 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                                     </SelectContent>
                                 </Select>
                             </BIOSSetting>
-                             <BIOSSetting label="Chipset Configuration">
-                                 <span className="text-gray-500">Press Enter</span>
+                             <BIOSSetting label="Chipset Configuration" focused={focusedSetting === 3}>
+                                 <span className="text-gray-200 cursor-pointer hover:text-blue-300">Press Enter</span>
                             </BIOSSetting>
                         </TabsContent>
 
@@ -304,8 +378,13 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                         </TabsContent>
                     </div>
                 </Tabs>
+                 ) : currentView === 'chipset' ? (
+                    <ChipsetConfiguration onBack={() => setCurrentView('main')} />
+                ) : null}
             </CardContent>
         </Card>
     </motion.div>
   );
 }
+
+    
