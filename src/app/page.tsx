@@ -7,8 +7,11 @@ import { DesktopProvider } from '@/contexts/DesktopContext';
 import ShutdownScreen from '@/components/system/ShutdownScreen';
 import LoginScreen from '@/components/system/LoginScreen';
 import InstallationScreen from '@/components/system/InstallationScreen';
+import EmergencyMode from '@/components/system/EmergencyMode';
+import BiosScreen from '@/components/system/BiosScreen';
 
-type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown';
+
+type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown' | 'emergency' | 'bios';
 
 function App() {
   const [systemState, setSystemState] = useState<SystemState>('booting');
@@ -16,6 +19,19 @@ function App() {
   useEffect(() => {
     const isInstalled = localStorage.getItem('nextmac_installed') === 'true';
     setSystemState(isInstalled ? 'booting' : 'installing');
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setSystemState('emergency');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
   }, []);
 
   const handleInstalled = () => {
@@ -37,6 +53,14 @@ function App() {
   
   const handleRestart = () => {
     window.location.reload();
+  }
+
+  const enterBios = () => {
+    setSystemState('bios');
+  }
+
+  const exitEmergency = () => {
+    setSystemState('login');
   }
 
   return (
@@ -68,6 +92,21 @@ function App() {
 
       <AnimatePresence>
         {systemState === 'shutdown' && <ShutdownScreen onRestart={handleRestart} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {systemState === 'emergency' && (
+            <EmergencyMode
+                onRestart={handleRestart}
+                onShutdown={handleShutdown}
+                onBios={enterBios}
+                onExit={exitEmergency}
+            />
+        )}
+      </AnimatePresence>
+
+       <AnimatePresence>
+        {systemState === 'bios' && <BiosScreen onRestart={handleRestart} />}
       </AnimatePresence>
     </>
   );
