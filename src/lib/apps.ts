@@ -1,5 +1,5 @@
 
-import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2, Dices, Puzzle, Swords, Shield, Ghost, Crosshair, Crown, Gamepad2, Heart, Skull } from 'lucide-react';
+import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2, Dices, Puzzle, Swords, Shield, Ghost, Crosshair, Crown, Gamepad2, Heart, Skull, Sparkles } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -17,6 +17,7 @@ import MusicPlayer from '@/components/apps/MusicPlayer';
 import { AppleLogo } from '@/components/system/AppleLogo';
 import AppStore from '@/components/apps/AppStore';
 import Trash from '@/components/apps/Trash';
+import Astra from '@/components/apps/Astra';
 
 
 export interface File {
@@ -41,6 +42,13 @@ export const APPS: App[] = [
     icon: AppleLogo,
     component: Finder,
     defaultSize: [640, 480],
+  },
+  {
+    id: 'astra',
+    name: 'Astra',
+    icon: Sparkles,
+    component: Astra,
+    defaultSize: [500, 700],
   },
   {
     id: 'browser',

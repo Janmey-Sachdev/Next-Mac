@@ -1,3 +1,4 @@
+
 'use client';
 import type { App, File } from '@/lib/apps';
 import { APPS } from '@/lib/apps';
@@ -5,6 +6,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { Dispatch, ReactNode } from 'react';
 import { createContext, useContext, useReducer, useState, useEffect, useCallback } from 'react';
 import { useSound } from './SoundContext';
+import { toast } from '@/hooks/use-toast';
 
 export interface WindowInstance {
   id: string;
@@ -17,6 +19,12 @@ export interface WindowInstance {
   file?: File;
 }
 
+interface ToastPayload {
+  title: string;
+  description: string;
+  variant?: 'default' | 'destructive';
+}
+
 interface DesktopState {
   windows: WindowInstance[];
   focusedWindow: string | null;
@@ -27,6 +35,7 @@ interface DesktopState {
   shutdownInitiated: boolean;
   installedApps: string[];
   pinnedApps: string[];
+  toast: ToastPayload | null;
 }
 
 type Action =
@@ -48,10 +57,12 @@ type Action =
   | { type: 'INSTALL_APP'; payload: string }
   | { type: 'UNINSTALL_APP'; payload: string }
   | { type: 'PIN_APP'; payload: string }
-  | { type: 'UNPIN_APP'; payload: string };
+  | { type: 'UNPIN_APP'; payload: string }
+  | { type: 'SHOW_TOAST'; payload: ToastPayload }
+  | { type: 'CLEAR_TOAST' };
 
 
-const initialCoreApps = ['finder', 'settings', 'terminal', 'trash', 'app-store'];
+const initialCoreApps = ['finder', 'settings', 'terminal', 'trash', 'app-store', 'task-manager'];
 const initialPinnedApps = ['finder', 'app-store', 'settings', 'terminal'];
 
 
@@ -65,6 +76,7 @@ const initialState: DesktopState = {
   shutdownInitiated: false,
   installedApps: initialCoreApps,
   pinnedApps: initialPinnedApps,
+  toast: null,
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -73,7 +85,19 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
       const app = APPS.find((a) => a.id === action.payload.appId);
       if (!app) return state;
 
-      if(!state.installedApps.includes(app.id)) return state;
+      if(!state.installedApps.includes(app.id)) {
+        if (action.payload.file) {
+            return {
+                ...state,
+                toast: {
+                    title: 'App Not Installed',
+                    description: `You need to install "${app.name}" to open this file. Visit the App Store.`,
+                    variant: 'destructive',
+                }
+            };
+        }
+        return state;
+      }
 
       // Check if a single-instance app is already open
       const singleInstanceApps = ['finder', 'trash', 'app-store', 'settings'];
@@ -282,6 +306,11 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
     case 'UNPIN_APP':
       return { ...state, pinnedApps: state.pinnedApps.filter(id => id !== action.payload) };
 
+    case 'SHOW_TOAST':
+      return { ...state, toast: action.payload };
+    case 'CLEAR_TOAST':
+      return { ...state, toast: null };
+
     default:
       return state;
   }
@@ -339,6 +368,17 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(desktopReducer, getInitialDesktopState());
   const [wallpaper, setWallpaperState] = useState(getInitialWallpaper());
   const { playSound } = useSound();
+
+  useEffect(() => {
+    if (state.toast) {
+        toast({
+            title: state.toast.title,
+            description: state.toast.description,
+            variant: state.toast.variant,
+        });
+        dispatch({ type: 'CLEAR_TOAST' });
+    }
+  }, [state.toast]);
 
   const setWallpaper = (url: string) => {
     setWallpaperState(url);
