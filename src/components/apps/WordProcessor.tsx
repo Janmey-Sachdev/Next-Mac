@@ -1,3 +1,4 @@
+
 'use client';
 import { Textarea } from '@/components/ui/textarea';
 import type { File } from '@/lib/apps';
@@ -12,14 +13,9 @@ export default function WordProcessor({ file }: { file?: File }) {
 
   useEffect(() => {
     // When a different file is opened, update the content.
-    if (file && file.content !== content) {
-        // For text files, the content is just the string.
-         if (file.type.startsWith('text/')) {
-            setContent(file.content);
-        }
+    if (file) {
+      setContent(file.content);
     }
-    // Only run this effect when the file prop changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
   
   const debouncedContent = useDebounce(content, 500);
@@ -34,13 +30,21 @@ export default function WordProcessor({ file }: { file?: File }) {
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedContent]); // Removed file and dispatch from dependencies
+  }, [debouncedContent]);
 
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
 
+
+  if (!file) {
+    return (
+        <div className="h-full flex items-center justify-center bg-background text-muted-foreground">
+            <p>Create or open a text file to start writing.</p>
+        </div>
+    )
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -50,7 +54,6 @@ export default function WordProcessor({ file }: { file?: File }) {
                 placeholder="Start writing..."
                 value={content}
                 onChange={handleContentChange}
-                disabled={!file}
             />
         </div>
     </div>
