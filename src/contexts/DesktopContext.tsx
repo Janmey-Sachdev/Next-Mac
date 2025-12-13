@@ -22,6 +22,7 @@ interface DesktopState {
   focusedWindow: string | null;
   lastZIndex: number;
   desktopFiles: File[];
+  trashedFiles: File[];
   password?: string;
   shutdownInitiated: boolean;
 }
@@ -38,6 +39,8 @@ type Action =
   | { type: 'UPDATE_DESKTOP_FILE'; payload: File }
   | { type: 'CREATE_FOLDER' }
   | { type: 'DELETE_FILE'; payload: string }
+  | { type: 'RESTORE_FILE'; payload: string }
+  | { type: 'PERMANENTLY_DELETE_FILE'; payload: string }
   | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' };
 
@@ -47,6 +50,7 @@ const initialState: DesktopState = {
   focusedWindow: null,
   lastZIndex: 100,
   desktopFiles: [],
+  trashedFiles: [],
   password: '1234',
   shutdownInitiated: false,
 };
@@ -56,6 +60,24 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
     case 'OPEN': {
       const app = APPS.find((a) => a.id === action.payload.appId);
       if (!app) return state;
+
+      // Check if a single-instance app is already open
+      const singleInstanceApps = ['finder', 'trash', 'app-store', 'settings'];
+      if(singleInstanceApps.includes(app.id)) {
+        const existingWindow = state.windows.find(w => w.appId === app.id);
+        if (existingWindow) {
+          const newZIndex = state.lastZIndex + 1;
+           return {
+            ...state,
+            windows: state.windows.map((w) =>
+              w.id === existingWindow.id ? { ...w, zIndex: newZIndex, state: 'normal' } : w
+            ),
+            focusedWindow: existingWindow.id,
+            lastZIndex: newZIndex,
+          };
+        }
+      }
+
 
       const newWindow: WindowInstance = {
         id: `${app.id}-${Date.now()}`,
@@ -87,7 +109,7 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
       return {
         ...state,
         windows: state.windows.map((w) =>
-          w.id === action.payload ? { ...w, zIndex: newZIndex } : w
+          w.id === action.payload ? { ...w, zIndex: newZIndex, state: 'normal' } : w
         ),
         focusedWindow: action.payload,
         lastZIndex: newZIndex,
@@ -171,9 +193,17 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         };
     }
     case 'CREATE_FOLDER': {
+      let folderNumber = 1;
+      let folderName = 'New Folder';
+      const existingNames = new Set(state.desktopFiles.map(f => f.name));
+      while(existingNames.has(folderName)) {
+        folderNumber++;
+        folderName = `New Folder ${folderNumber}`;
+      }
+
       const newFolder: File = {
         id: `folder-${Date.now()}`,
-        name: 'New Folder',
+        name: folderName,
         type: 'folder',
         content: '', // Folders don't have content in this model
       };
@@ -183,12 +213,28 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
       };
     }
     case 'DELETE_FILE': {
-        const fileToDelete = state.desktopFiles.find(f => f.id === action.payload);
-        if (!fileToDelete) return state;
+        const fileToTrash = state.desktopFiles.find(f => f.id === action.payload);
+        if (!fileToTrash) return state;
         return {
             ...state,
             desktopFiles: state.desktopFiles.filter(f => f.id !== action.payload),
+            trashedFiles: [...state.trashedFiles, fileToTrash],
         };
+    }
+    case 'RESTORE_FILE': {
+      const fileToRestore = state.trashedFiles.find(f => f.id === action.payload);
+      if (!fileToRestore) return state;
+      return {
+        ...state,
+        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
+        desktopFiles: [...state.desktopFiles, fileToRestore],
+      };
+    }
+    case 'PERMANENTLY_DELETE_FILE': {
+      return {
+        ...state,
+        trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
+      };
     }
      case 'CHANGE_PASSWORD': {
       return {
@@ -230,6 +276,7 @@ const getInitialDesktopState = (): DesktopState => {
         ...initialState,
         password: savedState.password || '1234',
         desktopFiles: migratedFiles,
+        trashedFiles: savedState.trashedFiles || [],
       };
     }
   } catch (error) {
@@ -255,6 +302,9 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         case 'DELETE_FILE':
             playSound('trash');
             break;
+        case 'RESTORE_FILE':
+            playSound('tink');
+            break;
         // Close, minimize etc handled in Window component to have access to `playSound`
     }
     return dispatch(action);
@@ -265,12 +315,13 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
       const stateToSave = {
         password: state.password,
         desktopFiles: state.desktopFiles,
+        trashedFiles: state.trashedFiles,
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.password, state.desktopFiles]);
+  }, [state.password, state.desktopFiles, state.trashedFiles]);
   
   useEffect(() => {
     playSound('startup');

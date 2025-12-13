@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -31,7 +32,7 @@ interface DesktopProps {
 }
 
 function DesktopInner({ onShutdown }: DesktopProps) {
-  const { state, wallpaper, dispatch } = useDesktop();
+  const { state, wallpaper, dispatch, setWallpaper } = useDesktop();
   const [isAppMenuOpen, setIsAppMenuOpen] = useState(false);
   const [deleteFileId, setDeleteFileId] = useState<string | null>(null);
 
@@ -133,7 +134,11 @@ function DesktopInner({ onShutdown }: DesktopProps) {
                       </DropdownMenuTrigger>
                        <DropdownMenuContent onMouseUp={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onSelect={() => handleOpenFile(file)}>Open</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => setDeleteFileId(file.id)}>Delete</DropdownMenuItem>
+                          {file.type.startsWith('image/') && (
+                            <DropdownMenuItem onSelect={() => setWallpaper(file.content)}>Set as Wallpaper</DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onSelect={() => setDeleteFileId(file.id)} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ))}
@@ -154,7 +159,7 @@ function DesktopInner({ onShutdown }: DesktopProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the file from the system.
+              This will move the file to the Trash. You can restore it from there.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
