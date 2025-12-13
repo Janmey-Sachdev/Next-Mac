@@ -23,14 +23,10 @@ const astraChatFlow = ai.defineFlow(
   async (input) => {
     const { history, message } = input;
     
-    const augmentedHistory = [
-        ...history,
-        { role: 'user' as const, content: [{ text: message }] },
-    ];
-
     const { output } = await ai.generate({
-      prompt: 'You are Astra, a helpful AI assistant integrated into NextMac OS. Keep your responses concise and helpful. Your personality is friendly and curious.',
-      history: augmentedHistory,
+      prompt: message,
+      history: history,
+      system: 'You are Astra, a helpful AI assistant integrated into NextMac OS. Keep your responses concise and helpful. Your personality is friendly and curious.',
     });
     
     return {
@@ -38,3 +34,4 @@ const astraChatFlow = ai.defineFlow(
     };
   }
 );
+
