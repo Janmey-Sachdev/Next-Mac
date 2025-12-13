@@ -20,6 +20,13 @@ Primary Slave  : None
 Secondary Master : VIRTUAL-CD/DVD
 Secondary Slave  : None
 
+Standard CMOS Features
+Advanced BIOS Features
+Integrated Peripherals
+Power Management Setup
+PnP/PCI Configurations
+PC Health Status
+
 Press B to enter UEFI SETUP, F12 for boot menu...
 
 Initializing USB Controllers .. Done
