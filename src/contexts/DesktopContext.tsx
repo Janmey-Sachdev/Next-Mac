@@ -26,6 +26,7 @@ interface DesktopState {
   password?: string;
   shutdownInitiated: boolean;
   installedApps: string[];
+  pinnedApps: string[];
 }
 
 type Action =
@@ -45,10 +46,14 @@ type Action =
   | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' }
   | { type: 'INSTALL_APP'; payload: string }
-  | { type: 'UNINSTALL_APP'; payload: string };
+  | { type: 'UNINSTALL_APP'; payload: string }
+  | { type: 'PIN_APP'; payload: string }
+  | { type: 'UNPIN_APP'; payload: string };
 
 
-const initialCoreApps = ['finder', 'settings', 'task-manager', 'terminal', 'trash', 'app-store'];
+const initialCoreApps = ['finder', 'settings', 'terminal', 'trash', 'app-store'];
+const initialPinnedApps = ['finder', 'app-store', 'settings', 'terminal'];
+
 
 const initialState: DesktopState = {
   windows: [],
@@ -59,6 +64,7 @@ const initialState: DesktopState = {
   password: 'PASSWORD',
   shutdownInitiated: false,
   installedApps: initialCoreApps,
+  pinnedApps: initialPinnedApps,
 };
 
 const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
@@ -266,7 +272,15 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
             ...state,
             installedApps: state.installedApps.filter(id => id !== action.payload),
             windows: state.windows.filter(w => w.appId !== action.payload),
+            pinnedApps: state.pinnedApps.filter(id => id !== action.payload),
         };
+    
+    case 'PIN_APP':
+      if (state.pinnedApps.includes(action.payload)) return state;
+      return { ...state, pinnedApps: [...state.pinnedApps, action.payload] };
+      
+    case 'UNPIN_APP':
+      return { ...state, pinnedApps: state.pinnedApps.filter(id => id !== action.payload) };
 
     default:
       return state;
@@ -302,12 +316,13 @@ const getInitialDesktopState = (): DesktopState => {
         desktopFiles: migratedFiles,
         trashedFiles: savedState.trashedFiles || [],
         installedApps: savedState.installedApps || initialCoreApps,
+        pinnedApps: savedState.pinnedApps || initialPinnedApps,
       };
     }
   } catch (error) {
     console.error('Error reading desktop state from localStorage', error);
   }
-  return { ...initialState, password: 'PASSWORD', installedApps: initialCoreApps };
+  return { ...initialState, password: 'PASSWORD', installedApps: initialCoreApps, pinnedApps: initialPinnedApps };
 };
 
 const getInitialWallpaper = (): string => {
@@ -359,12 +374,13 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
         desktopFiles: state.desktopFiles,
         trashedFiles: state.trashedFiles,
         installedApps: state.installedApps,
+        pinnedApps: state.pinnedApps,
       };
       window.localStorage.setItem('desktopState', JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.password, state.desktopFiles, state.trashedFiles, state.installedApps]);
+  }, [state.password, state.desktopFiles, state.trashedFiles, state.installedApps, state.pinnedApps]);
   
   useEffect(() => {
     playSound('startup');

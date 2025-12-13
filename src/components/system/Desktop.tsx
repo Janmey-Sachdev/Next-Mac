@@ -6,8 +6,10 @@ import Dock from './Dock';
 import Window from './Window';
 import { useCallback, useEffect, useState } from 'react';
 import AppMenu from './AppMenu';
-import type { File } from '@/lib/apps';
-import { FileText, Image as ImageIcon, Folder, Video, Music } from 'lucide-react';
+import type { File, App } from '@/lib/apps';
+import { APPS } from '@/lib/apps';
+import AppIcon from './AppIcon';
+import { FileText, Image as ImageIcon, Folder, Video, Music, Star } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +77,10 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     
     dispatch({ type: 'OPEN', payload: { appId, file } });
   }
+
+  const handleOpenApp = (appId: string) => {
+    dispatch({ type: 'OPEN', payload: { appId } });
+  };
   
   const getFileIcon = (file: File) => {
     if (file.type === 'folder') {
@@ -108,6 +114,8 @@ function DesktopInner({ onShutdown }: DesktopProps) {
     }
   }, [state.shutdownInitiated, onShutdown]);
 
+  const installedSystemApps = APPS.filter(app => state.installedApps.includes(app.id));
+
   return (
     <main
       className="h-screen w-screen overflow-hidden bg-cover bg-center"
@@ -119,6 +127,34 @@ function DesktopInner({ onShutdown }: DesktopProps) {
         {/* Desktop Icons */}
         <div className="absolute top-10 left-4 h-full">
             <div className="flex flex-col flex-wrap h-[calc(100vh-120px)] gap-x-4">
+                {/* App Icons */}
+                {installedSystemApps.map((app) => (
+                    <DropdownMenu key={app.id}>
+                        <DropdownMenuTrigger asChild>
+                           <div onDoubleClick={() => handleOpenApp(app.id)}>
+                            <AppIcon
+                                app={app}
+                                onClick={() => {}}
+                            />
+                           </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent onMouseUp={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onSelect={() => handleOpenApp(app.id)}>Open</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {state.pinnedApps.includes(app.id) ? (
+                            <DropdownMenuItem onSelect={() => dispatch({ type: 'UNPIN_APP', payload: app.id })}>
+                              Unpin from Dock
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onSelect={() => dispatch({ type: 'PIN_APP', payload: app.id })}>
+                              <Star className="mr-2 h-4 w-4" /> Pin to Dock
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ))}
+
+                {/* File Icons */}
                 {state.desktopFiles.map((file) => (
                     <DropdownMenu key={file.id}>
                       <DropdownMenuTrigger asChild>
