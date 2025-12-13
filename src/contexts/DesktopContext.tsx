@@ -51,7 +51,7 @@ const initialState: DesktopState = {
   lastZIndex: 100,
   desktopFiles: [],
   trashedFiles: [],
-  password: '1234',
+  password: 'PASSWORD',
   shutdownInitiated: false,
 };
 
@@ -274,7 +274,7 @@ const getInitialDesktopState = (): DesktopState => {
 
       return {
         ...initialState,
-        password: savedState.password || '1234',
+        password: savedState.password || 'PASSWORD',
         desktopFiles: migratedFiles,
         trashedFiles: savedState.trashedFiles || [],
       };
@@ -282,7 +282,7 @@ const getInitialDesktopState = (): DesktopState => {
   } catch (error) {
     console.error('Error reading desktop state from localStorage', error);
   }
-  return { ...initialState, password: '1234' };
+  return { ...initialState, password: 'PASSWORD' };
 };
 
 export const DesktopProvider = ({ children }: { children: ReactNode }) => {
