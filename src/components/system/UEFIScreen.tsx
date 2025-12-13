@@ -12,9 +12,11 @@ interface UEFIScreenProps {
 }
 
 const BIOSSetting = ({ label, children }: { label: string, children: React.ReactNode }) => (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between py-2 border-b border-gray-700/50">
         <label className="text-gray-400">{label}:</label>
-        {children}
+        <div className="w-[250px] text-right">
+            {children}
+        </div>
     </div>
 );
 
@@ -43,7 +45,7 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                     NextMac UEFI BIOS Utility
                 </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 flex-grow">
+            <CardContent className="p-4 flex-grow overflow-hidden">
                 <Tabs defaultValue="main" className="h-full flex flex-col">
                     <TabsList className="grid w-full grid-cols-7 bg-blue-900/50">
                         <TabsTrigger value="main">Main</TabsTrigger>
@@ -55,28 +57,40 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                         <TabsTrigger value="exit">Exit</TabsTrigger>
                     </TabsList>
 
-                    <div className="flex-grow mt-4 overflow-y-auto">
-                        <TabsContent value="main" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">Standard CMOS Features</h3>
-                             <BIOSSetting label="System Date">
+                    <div className="flex-grow mt-4 overflow-y-auto pr-2">
+                        <TabsContent value="main" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">System Information</h3>
+                             <BIOSSetting label="BIOS Version">
+                                <span className="text-white font-semibold">F1.0</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="Build Date">
+                                <span className="text-white font-semibold">05/29/2024</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="System Date">
                                 <span className="text-white font-semibold">{date}</span>
                             </BIOSSetting>
                             <BIOSSetting label="System Time">
                                 <span className="text-white font-semibold">{time}</span>
                             </BIOSSetting>
-                            <BIOSSetting label="SATA Port 1">
+                            <BIOSSetting label="Processor Type">
+                                <span className="text-white">Intel(R) Core(TM) i9-9980HK</span>
+                            </BIOSSetting>
+                            <BIOSSetting label="Processor Speed">
+                                <span className="text-white">2.40 GHz</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="Total Memory">
+                                <span className="text-white">16384 MB</span>
+                             </BIOSSetting>
+                             <BIOSSetting label="SATA Port 1">
                                 <span className="text-white">VIRTUAL-HD 1024GB</span>
                             </BIOSSetting>
                              <BIOSSetting label="SATA Port 2">
                                 <span className="text-white">VIRTUAL-CD/DVD</span>
                             </BIOSSetting>
-                             <BIOSSetting label="Total Memory">
-                                <span className="text-white">16384 MB</span>
-                            </BIOSSetting>
                         </TabsContent>
 
-                        <TabsContent value="advanced" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">Advanced BIOS Features</h3>
+                        <TabsContent value="advanced" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">Advanced BIOS Features</h3>
                              <BIOSSetting label="CPU Virtualization">
                                 <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
@@ -99,10 +113,24 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                                     </SelectContent>
                                 </Select>
                             </BIOSSetting>
+                            <BIOSSetting label="XHCI Hand-off">
+                                 <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="Chipset Configuration">
+                                 <span className="text-gray-500">Press Enter</span>
+                            </BIOSSetting>
                         </TabsContent>
 
-                        <TabsContent value="peripherals" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">Integrated Peripherals</h3>
+                        <TabsContent value="peripherals" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">Integrated Peripherals</h3>
                              <BIOSSetting label="Onboard LAN Controller">
                                 <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
@@ -139,8 +167,8 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                             </BIOSSetting>
                         </TabsContent>
                         
-                        <TabsContent value="power" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">Power Management Setup</h3>
+                        <TabsContent value="power" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">Power Management Setup</h3>
                             <BIOSSetting label="ACPI Suspend Type">
                                 <Select defaultValue="s3">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
@@ -165,8 +193,8 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                             </BIOSSetting>
                         </TabsContent>
 
-                        <TabsContent value="health" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">PC Health Status</h3>
+                        <TabsContent value="health" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">PC Health Status</h3>
                             <BIOSSetting label="CPU Temperature">
                                 <span className="text-green-400">45°C / 113°F</span>
                             </BIOSSetting>
@@ -182,10 +210,22 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                             <BIOSSetting label="Vcore Voltage">
                                 <span className="text-yellow-400">1.250V</span>
                             </BIOSSetting>
+                             <BIOSSetting label="DRAM Voltage">
+                                <span className="text-yellow-400">1.350V</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="+3.3V Voltage">
+                                <span className="text-yellow-400">3.312V</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="+5V Voltage">
+                                <span className="text-yellow-400">5.025V</span>
+                            </BIOSSetting>
+                             <BIOSSetting label="+12V Voltage">
+                                <span className="text-yellow-400">12.096V</span>
+                            </BIOSSetting>
                         </TabsContent>
                         
-                        <TabsContent value="boot" className="space-y-6">
-                            <h3 className="text-lg font-semibold text-blue-400">Boot Options</h3>
+                        <TabsContent value="boot" className="space-y-2">
+                            <h3 className="text-lg font-semibold text-blue-400 mb-4">Boot Options</h3>
                             <BIOSSetting label="Boot Priority #1">
                                 <Select defaultValue="hd">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
@@ -198,7 +238,44 @@ export default function UEFIScreen({ onRestart }: UEFIScreenProps) {
                                     </SelectContent>
                                 </Select>
                             </BIOSSetting>
+                             <BIOSSetting label="Boot Priority #2">
+                                <Select defaultValue="usb">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="hd">Hard Drive</SelectItem>
+                                        <SelectItem value="usb">USB Device</SelectItem>
+                                        <SelectItem value="network">Network Boot</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="Boot Priority #3">
+                                <Select defaultValue="network">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="hd">Hard Drive</SelectItem>
+                                        <SelectItem value="usb">USB Device</SelectItem>
+                                        <SelectItem value="network">Network Boot</SelectItem>
+                                         <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
                             <BIOSSetting label="Fast Boot">
+                                <Select defaultValue="enabled">
+                                    <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                                        <SelectItem value="enabled">Enabled</SelectItem>
+                                        <SelectItem value="disabled">Disabled</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </BIOSSetting>
+                             <BIOSSetting label="Full Screen Logo">
                                 <Select defaultValue="enabled">
                                     <SelectTrigger className="w-[180px] bg-gray-800 border-gray-600">
                                         <SelectValue />
