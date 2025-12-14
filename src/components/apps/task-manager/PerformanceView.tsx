@@ -28,6 +28,7 @@ export default function PerformanceView() {
            <div className="flex items-baseline gap-2 mb-2">
             <HardDrive className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold">Disk (C:)</h2>
+            <p className="text-sm text-muted-foreground">Nimbus Data's ExaDrive DC100 100 GB</p>
           </div>
           <PerformanceChart yLabel="%" color="hsl(142.1 76.2% 36.3%)" />
         </section>
