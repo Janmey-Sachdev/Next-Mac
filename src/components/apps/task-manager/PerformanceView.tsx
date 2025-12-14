@@ -13,7 +13,7 @@ export default function PerformanceView() {
           <div className="flex items-baseline gap-2 mb-2">
             <Cpu className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold">CPU</h2>
-            <p className="text-sm text-muted-foreground">Intel® Core™ i9 Processor 14900KS</p>
+            <p className="text-sm text-muted-foreground">Snapdragon 8 Elite Gen 9</p>
           </div>
           <PerformanceChart yLabel="%" color="hsl(var(--primary))" />
         </section>
