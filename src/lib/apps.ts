@@ -1,5 +1,5 @@
 
-import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2, Dices, Puzzle, Swords, Shield, Ghost, Crosshair, Crown, Gamepad2, Heart, Skull, Sparkles } from 'lucide-react';
+import { Globe, Settings, ActivitySquare, FileText, Sheet, HardDrive, Image, PenTool, Terminal as TerminalIcon, Camera, Video, Music, ShoppingCart, Trash2, Dices, Puzzle, Swords, Shield, Ghost, Crosshair, Crown, Gamepad2, Heart, Skull, Sparkles, Code2 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import Browser from '@/components/apps/Browser';
 import SettingsApp from '@/components/apps/Settings';
@@ -18,6 +18,7 @@ import { AppleLogo } from '@/components/system/AppleLogo';
 import AppStore from '@/components/apps/AppStore';
 import Trash from '@/components/apps/Trash';
 import Astra from '@/components/apps/Astra';
+import CodeEditor from '@/components/apps/CodeEditor';
 
 
 export interface File {
@@ -90,6 +91,13 @@ export const APPS: App[] = [
     name: 'Sheets',
     icon: Sheet,
     component: Spreadsheet,
+    defaultSize: [960, 720],
+  },
+  {
+    id: 'editor',
+    name: 'Code Editor',
+    icon: Code2,
+    component: CodeEditor,
     defaultSize: [960, 720],
   },
   {
