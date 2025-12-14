@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -6,18 +7,27 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, User } from 'lucide-react';
 import { useDesktop } from '@/contexts/DesktopContext';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('');
-  const { wallpaper } = useDesktop();
+  const { wallpaper, state } = useDesktop();
+  const { toast } = useToast();
   const [show, setShow] = useState(true);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd verify the password.
-    // For this demo, any password will work.
-    setShow(false);
-    setTimeout(onLogin, 500); // Wait for animation
+    if (password === state.password) {
+        setShow(false);
+        setTimeout(onLogin, 500); // Wait for animation
+    } else {
+        toast({
+            title: 'Incorrect Password',
+            description: 'The password you entered is not correct.',
+            variant: 'destructive',
+        });
+        setPassword('');
+    }
   };
 
   return (
