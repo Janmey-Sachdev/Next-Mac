@@ -18,11 +18,12 @@ export default function PerformanceView() {
           <PerformanceChart yLabel="%" color="hsl(var(--primary))" />
         </section>
         <section>
-           <div className="flex items-center gap-2 mb-2">
+           <div className="flex items-baseline gap-2 mb-2">
             <MemoryStick className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold">Memory</h2>
+            <p className="text-sm text-muted-foreground">2 Crucial Pro DDR5 UDIMM Desktop RAM Memory 48 GB</p>
           </div>
-          <PerformanceChart yLabel="GB" maxValue={16} color="hsl(210 100% 56%)" />
+          <PerformanceChart yLabel="GB" maxValue={48} color="hsl(210 100% 56%)" />
         </section>
         <section>
            <div className="flex items-baseline gap-2 mb-2">
