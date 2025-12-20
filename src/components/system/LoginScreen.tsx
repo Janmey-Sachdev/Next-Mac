@@ -1,34 +1,24 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useDesktop } from '@/contexts/DesktopContext';
-import { useToast } from '@/hooks/use-toast';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [password, setPassword] = useState('');
-  const { wallpaper, state } = useDesktop();
-  const { toast } = useToast();
+  const { wallpaper } = useDesktop();
   const [show, setShow] = useState(true);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === state.password) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
         setShow(false);
         setTimeout(onLogin, 500); // Wait for animation
-    } else {
-        toast({
-            title: 'Incorrect Password',
-            description: 'The password you entered is not correct.',
-            variant: 'destructive',
-        });
-        setPassword('');
-    }
-  };
+    }, 1500); // Automatically log in after 1.5 seconds
+    
+    return () => clearTimeout(timer);
+  }, [onLogin]);
+
 
   return (
     <AnimatePresence>
@@ -52,19 +42,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
               <User className="w-16 h-16" />
             </div>
             <h1 className="text-2xl font-semibold mb-4">User Admin</h1>
-            <form onSubmit={handleLogin} className="flex items-center gap-2 max-w-xs mx-auto">
-              <Input
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-white/20 border-white/30 text-white placeholder:text-white/60 text-center"
-                autoFocus
-              />
-              <Button type="submit" size="icon" variant="ghost" className="hover:bg-white/20">
-                <ArrowRight />
-              </Button>
-            </form>
+            <p className="text-white/80">Logging in...</p>
           </motion.div>
         </motion.div>
       )}

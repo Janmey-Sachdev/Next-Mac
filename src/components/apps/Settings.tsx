@@ -3,16 +3,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import ChangePassword from '@/components/system/ChangePassword';
-
 
 export default function SettingsApp() {
   const { theme, setTheme } = useTheme();
@@ -39,21 +29,6 @@ export default function SettingsApp() {
             Use AI to generate a unique wallpaper based on a theme.
           </p>
           <DynamicWallpaper />
-        </section>
-        <Separator />
-        <section>
-          <h2 className="text-lg font-semibold mb-2">Security</h2>
-           <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline">Change Password</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Change Password</DialogTitle>
-                </DialogHeader>
-                <ChangePassword />
-              </DialogContent>
-            </Dialog>
         </section>
       </div>
     </div>

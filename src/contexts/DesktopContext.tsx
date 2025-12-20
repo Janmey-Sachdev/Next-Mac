@@ -31,7 +31,6 @@ interface DesktopState {
   lastZIndex: number;
   desktopFiles: File[];
   trashedFiles: File[];
-  password?: string;
   shutdownInitiated: boolean;
   installedApps: string[];
   pinnedApps: string[];
@@ -52,7 +51,6 @@ type Action =
   | { type: 'DELETE_FILE'; payload: string }
   | { type: 'RESTORE_FILE'; payload: string }
   | { type: 'PERMANENTLY_DELETE_FILE'; payload: string }
-  | { type: 'CHANGE_PASSWORD'; payload: string }
   | { type: 'SHUTDOWN' }
   | { type: 'INSTALL_APP'; payload: string }
   | { type: 'UNINSTALL_APP'; payload: string }
@@ -72,7 +70,6 @@ const initialState: DesktopState = {
   lastZIndex: 100,
   desktopFiles: [],
   trashedFiles: [],
-  password: 'PASSWORD',
   shutdownInitiated: false,
   installedApps: initialCoreApps,
   pinnedApps: initialPinnedApps,
@@ -274,12 +271,6 @@ const desktopReducer = (state: DesktopState, action: Action): DesktopState => {
         trashedFiles: state.trashedFiles.filter(f => f.id !== action.payload),
       };
     }
-     case 'CHANGE_PASSWORD': {
-      return {
-        ...state,
-        password: action.payload,
-      };
-    }
     case 'SHUTDOWN':
       return { ...state, shutdownInitiated: true };
     
@@ -341,7 +332,6 @@ const getInitialDesktopState = (): DesktopState => {
 
       return {
         ...initialState,
-        password: savedState.password || 'PASSWORD',
         desktopFiles: migratedFiles,
         trashedFiles: savedState.trashedFiles || [],
         installedApps: savedState.installedApps || initialCoreApps,
@@ -351,7 +341,7 @@ const getInitialDesktopState = (): DesktopState => {
   } catch (error) {
     console.error('Error reading desktop state from localStorage', error);
   }
-  return { ...initialState, password: 'PASSWORD', installedApps: initialCoreApps, pinnedApps: initialPinnedApps };
+  return { ...initialState, installedApps: initialCoreApps, pinnedApps: initialPinnedApps };
 };
 
 const getInitialWallpaper = (): string => {
@@ -410,7 +400,6 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     try {
       const stateToSave = {
-        password: state.password,
         desktopFiles: state.desktopFiles,
         trashedFiles: state.trashedFiles,
         installedApps: state.installedApps,
@@ -420,7 +409,7 @@ export const DesktopProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error writing desktop state to localStorage', error);
     }
-  }, [state.password, state.desktopFiles, state.trashedFiles, state.installedApps, state.pinnedApps]);
+  }, [state.desktopFiles, state.trashedFiles, state.installedApps, state.pinnedApps]);
   
   useEffect(() => {
     playSound('startup');
