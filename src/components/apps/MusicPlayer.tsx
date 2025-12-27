@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Rewind, FastForward, Volume2, VolumeX, Music4, Upload } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useSound } from '@/contexts/SoundContext';
 
 export default function MusicPlayer({ file: initialFile }: { file?: File }) {
   const [currentFile, setCurrentFile] = useState<File | null>(initialFile || null);
@@ -12,7 +13,7 @@ export default function MusicPlayer({ file: initialFile }: { file?: File }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
+  const { volume, setVolume, isMuted, toggleMute } = useSound();
 
   useEffect(() => {
     if (initialFile) {
@@ -65,8 +66,10 @@ export default function MusicPlayer({ file: initialFile }: { file?: File }) {
   const handleVolumeChange = (value: number[]) => {
       if(!audioRef.current) return;
       const newVolume = value[0];
-      audioRef.current.volume = newVolume;
       setVolume(newVolume);
+      if (isMuted && newVolume > 0) {
+        toggleMute();
+      }
   }
   
   const formatTime = (time: number) => {
@@ -112,7 +115,7 @@ export default function MusicPlayer({ file: initialFile }: { file?: File }) {
 
   return (
     <div className="h-full w-full flex flex-col items-center justify-center bg-card text-card-foreground p-8">
-      <audio ref={audioRef} />
+      <audio ref={audioRef} muted={isMuted} />
       <div className="w-full max-w-md">
         <div className="flex items-center gap-4 mb-4">
             <Music4 className="w-16 h-16 text-primary" />
@@ -149,9 +152,11 @@ export default function MusicPlayer({ file: initialFile }: { file?: File }) {
         </div>
         
         <div className="flex items-center gap-2 mb-4">
-            {volume > 0 ? <Volume2 className="h-5 w-5"/> : <VolumeX className="h-5 w-5"/>}
+            <Button variant="ghost" size="icon" onClick={toggleMute}>
+                {isMuted || volume === 0 ? <VolumeX className="h-5 w-5"/> : <Volume2 className="h-5 w-5"/>}
+            </Button>
             <Slider
-                value={[volume]}
+                value={[isMuted ? 0 : volume]}
                 max={1}
                 step={0.01}
                 onValueChange={handleVolumeChange}

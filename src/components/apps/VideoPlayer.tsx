@@ -3,11 +3,13 @@ import type { File } from '@/lib/apps';
 import { Film, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
+import { useSound } from '@/contexts/SoundContext';
 
 export default function VideoPlayer({ file: initialFile }: { file?: File }) {
   const [currentFile, setCurrentFile] = useState<File | null>(initialFile || null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isMuted } = useSound();
 
   useEffect(() => {
     if (initialFile) {
@@ -63,7 +65,7 @@ export default function VideoPlayer({ file: initialFile }: { file?: File }) {
             Load Video
         </Button>
       </div>
-      <video ref={videoRef} controls autoPlay className="max-h-full max-w-full">
+      <video ref={videoRef} controls autoPlay className="max-h-full max-w-full" muted={isMuted}>
          <source src={currentFile.content} type={currentFile.type} />
         Your browser does not support the video tag.
       </video>
