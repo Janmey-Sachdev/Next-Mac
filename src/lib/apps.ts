@@ -17,7 +17,6 @@ import MusicPlayer from '@/components/apps/MusicPlayer';
 import { AppleLogo } from '@/components/system/AppleLogo';
 import AppStore from '@/components/apps/AppStore';
 import Trash from '@/components/apps/Trash';
-import Astra from '@/components/apps/Astra';
 import CodeEditor from '@/components/apps/CodeEditor';
 
 
@@ -43,13 +42,6 @@ export const APPS: App[] = [
     icon: AppleLogo,
     component: Finder,
     defaultSize: [640, 480],
-  },
-  {
-    id: 'astra',
-    name: 'Astra',
-    icon: Sparkles,
-    component: Astra,
-    defaultSize: [500, 700],
   },
   {
     id: 'browser',
