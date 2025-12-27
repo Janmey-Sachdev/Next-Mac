@@ -17,7 +17,7 @@ export default function PreInstallScreen({ onContinue }: PreInstallScreenProps) 
       <div className="text-center p-8 max-w-lg">
         <h1 className="text-2xl font-bold mb-4">Important Notice</h1>
         <p className="text-lg text-gray-300 mb-8">
-          This Is A Website That is Published Using, So The Website Might Stop Working.
+          This Is A Website That is Published Using Github Website, So The Website Might Stop Working
         </p>
         <Button onClick={onContinue} size="lg">
           Continue Installation
