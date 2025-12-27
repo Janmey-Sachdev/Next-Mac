@@ -30,8 +30,7 @@ const astraChatFlow = ai.defineFlow(
     ];
 
     const { output } = await ai.generate({
-      prompt: message, // The prompt can be the latest message
-      history: history, // Pass the previous history
+      history: fullHistory, // Pass the complete history
       system: 'You are Astra, a helpful AI assistant integrated into NextMac OS. Keep your responses concise and helpful. Your personality is friendly and curious.',
     });
     
