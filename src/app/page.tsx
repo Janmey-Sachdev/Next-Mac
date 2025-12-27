@@ -10,16 +10,25 @@ import InstallationScreen from '@/components/system/InstallationScreen';
 import EmergencyMode from '@/components/system/EmergencyMode';
 import BiosScreen from '@/components/system/BiosScreen';
 import UEFIScreen from '@/components/system/UEFIScreen';
+import PreInstallScreen from '@/components/system/PreInstallScreen';
 
 
-type SystemState = 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown' | 'emergency' | 'bios' | 'uefi';
+type SystemState = 'preinstall' | 'installing' | 'booting' | 'login' | 'desktop' | 'shutdown' | 'emergency' | 'bios' | 'uefi';
 
 function App() {
-  const [systemState, setSystemState] = useState<SystemState>('booting');
+  const [systemState, setSystemState] = useState<SystemState>('preinstall');
 
   useEffect(() => {
+    const preinstallSeen = localStorage.getItem('nextmac_preinstall_seen') === 'true';
     const isInstalled = localStorage.getItem('nextmac_installed') === 'true';
-    setSystemState(isInstalled ? 'booting' : 'installing');
+
+    if (!preinstallSeen) {
+      setSystemState('preinstall');
+    } else if (!isInstalled) {
+      setSystemState('installing');
+    } else {
+      setSystemState('booting');
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === 'b') {
@@ -34,6 +43,11 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown);
     }
   }, []);
+
+  const handleContinueInstallation = () => {
+    localStorage.setItem('nextmac_preinstall_seen', 'true');
+    setSystemState('installing');
+  };
 
   const handleInstalled = () => {
     localStorage.setItem('nextmac_installed', 'true');
@@ -70,6 +84,10 @@ function App() {
 
   return (
     <>
+      <AnimatePresence>
+        {systemState === 'preinstall' && <PreInstallScreen onContinue={handleContinueInstallation} />}
+      </AnimatePresence>
+
       <AnimatePresence>
         {systemState === 'installing' && <InstallationScreen onInstalled={handleInstalled} />}
       </AnimatePresence>
